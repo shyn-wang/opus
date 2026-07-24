@@ -14,6 +14,9 @@ const eras = [
 
 // true when less than two matchups have occured
 let onInitialMatchups = true;
+let initialMatchups = eras.slice(); // make copy of eras array so changes are not shared
+
+shuffleArray(initialMatchups);
 
 // tracks the eras on screen
 let leftEra;
@@ -65,14 +68,15 @@ async function initializePlaylists() {
 }
 
 function selectMatchups() {
-    if (onInitialMatchups == true) { // select initial matchups randomly
-        let initialMatchups = eras.slice(); // make copy of eras array so changes are not shared
-        shuffleArray(initialMatchups);
-
+    if (onInitialMatchups) { // select initial matchups randomly
         leftEra = initialMatchups[0];
         rightEra = initialMatchups[1];
 
-        onInitialMatchups = false;
+        initialMatchups.splice(0, 2); // remove eras used in first comparison -> remaining eras participate in second comparison
+        
+        if (initialMatchups.length === 0) {
+            onInitialMatchups = false; // both starting comparisons are made
+        }
         
     } else { // select matchups based on probabilities
         leftEra = selectRandomWithProbability();
