@@ -9,8 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "colorthief": "^2.4.0",
-    "request": "^2.88.2",
-    "spotify-web-api-js": "^1.5.2"
+    "colorthief": "2.4.0"
   }
 }

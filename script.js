@@ -112,10 +112,7 @@ function displayTracks(leftTrack, rightTrack) {
         .catch(err => { console.log(err) });
 
     // piece title
-    const titleLeft = leftTrack.title;
-    
-    // performer
-    const performerLeft = leftTrack.artist.name;
+    const titleLeft = leftTrack.title;``
     
     // preview url
     const previewLeft = leftTrack.preview;
@@ -135,7 +132,7 @@ function displayTracks(leftTrack, rightTrack) {
     previewLeftId.src = previewLeft;
 
     // **right side**
-
+``
     // album cover
     const coverRight = rightTrack.album.cover_big;
 
