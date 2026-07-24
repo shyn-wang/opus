@@ -56,8 +56,6 @@ async function initializePlaylists() {
             era.playlist = response.data; // 'response.data' returns array of tracks
             era.numOfPlaylistTracks = response.total;
 
-            console.log(era.playlist);
-
         } catch (error) {
             console.error(error);
         }
@@ -108,7 +106,7 @@ function selectRandomWithProbability() {
     for (const era of eras) {
         cumulative += era.probability;
 
-        if (randomNum < cumulative) { // random num is captured by one of the slices
+        if (randomNum <= cumulative) { // random num is captured by one of the slices
             return era; // break
         }
     }
@@ -131,7 +129,22 @@ function getRandomTrack(leftEra, rightEra) {
 }
 
 // intakes objects containing track info
-function displayTracks(leftTrack, rightTrack) {
+async function displayTracks(leftTrack, rightTrack) {
+    // fetch new preview links (currently saved ones may have expired)
+    const leftTrackURL = `https://api.deezer.com/track/${leftTrack.id}`;
+    const rightTrackURL = `https://api.deezer.com/track/${rightTrack.id}`;
+
+    try {
+        const responseLeft = await fetchDeezerJSONP(leftTrackURL);
+        const responseRight = await fetchDeezerJSONP(rightTrackURL);
+
+        leftTrack.preview = responseLeft.preview; // update links
+        rightTrack.preview = responseRight.preview;
+
+    } catch (error) {
+        console.error(error);
+    }
+
     // **left side**
 
     // album cover
@@ -336,15 +349,18 @@ function updateElo(winner, loser) {
 
     // update Elos
     const K = 32;
-    const winnerEloGained = 32 * (1 - winProbability);
-    const loserEloLost = 32 * (0 - winProbability);
+    const winnerEloGained = K * (1 - winProbability);
+    const loserEloLost = K * (0 - winProbability);
+
     winner.elo = winnerRating + winnerEloGained;
     loser.elo = loserRating + loserEloLost;
 
     // update probabilities based on elo gained/lost
     const winnerUpdatedProbability = winnerEloGained / 128;
     const loserUpdatedProbability = loserEloLost / 128;
+
     winner.probability += winnerUpdatedProbability;
+
     if ((loser.probability + loserUpdatedProbability) < 0.10) {
         loser.probability = 0.10;
     } else {
@@ -355,7 +371,7 @@ function updateElo(winner, loser) {
     currentRound++;
     updateCurrentRound();
     
-    if (numOfRounds == 10) {
+    if (numOfRounds == 15) {
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
@@ -417,7 +433,7 @@ function displayResults() {
 
 function updateCurrentRound() {
     const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.innerHTML = `${currentRound}/10`;
+    roundTrackerId.innerHTML = `${currentRound}/15`;
 }
 
 
