@@ -2899,11 +2899,11 @@ function unique(list, compare, sorted) {
 module.exports = unique
 
 },{}],17:[function(require,module,exports){
-// set up color thief
-const ColorThief = require('colorthief');
-
 // import library file
 const library = require('./library');
+
+// set up color thief
+const ColorThief = require('colorthief');
 
 // array containing the four era objects
 const eras = [
@@ -2912,6 +2912,14 @@ const eras = [
     library.romantic,
     library.modern
 ]
+
+// true when less than two matchups have occured
+let onInitialMatchups = true;
+
+// tracks the eras on screen
+let leftEra;
+let rightEra;
+
 
 // Helper function to bypass CORS without using a proxy -> TEMPORARY - remove once backend is built
 function fetchDeezerJSONP(url) {
@@ -2957,6 +2965,70 @@ async function initializePlaylists() {
     }
 
     selectMatchups();
+}
+
+function selectMatchups() {
+    if (onInitialMatchups == true) { // select initial matchups randomly
+        let initialMatchups = eras.slice(); // make copy of eras array so changes are not shared
+        shuffleArray(initialMatchups);
+
+        leftEra = initialMatchups[0];
+        rightEra = initialMatchups[1];
+
+        onInitialMatchups = false;
+        
+    } else { // select matchups based on probabilities
+        leftEra = selectRandomWithProbability();
+        rightEra = selectRandomWithProbability();
+        
+        if (rightEra === leftEra) { // force distinct matchups
+            while (rightEra === leftEra) {
+                rightEra = selectRandomWithProbability();
+            }
+        }
+    }
+
+    getRandomTrack(leftEra, rightEra);
+}
+
+// select post-initial matchups using a roulette wheel selection algorithm
+function selectRandomWithProbability() {
+    // calculate sum of all probability weights (total range)
+    let probabilitySum = 0;
+
+    for (const era of eras) {
+        probabilitySum += era.probability;
+    }
+
+    // generate a random number between 0 and probabilitySum
+    const randomNum = Math.random() * probabilitySum;
+
+    // traverse eras array and add up probability weightings as individual slices until the randomly selected number is 'captured' by one of the eras  
+    let cumulative = 0;
+
+    for (const era of eras) {
+        cumulative += era.probability;
+
+        if (randomNum < cumulative) { // random num is captured by one of the slices
+            return era; // break
+        }
+    }
+}
+
+function getRandomTrack(leftEra, rightEra) {
+    const rangeLeft = leftEra.playlist.length -1;
+    const rangeRight = rightEra.playlist.length -1;
+
+    const leftTrackIndex = Math.floor(Math.random() * (rangeLeft + 1));
+    const rightTrackIndex = Math.floor(Math.random() * (rangeRight + 1));
+
+    const leftTrack = leftEra.playlist[leftTrackIndex];
+    leftEra.playlist.splice(leftTrackIndex, 1); // remove used track from playlist
+
+    const rightTrack = rightEra.playlist[rightTrackIndex];
+    rightEra.playlist.splice(rightTrackIndex, 1);
+
+    displayTracks(leftTrack, rightTrack);
 }
 
 // intakes objects containing track info
@@ -3013,7 +3085,7 @@ function displayTracks(leftTrack, rightTrack) {
         .catch(err => { console.log(err) });
 
     // piece title
-    const titleLeft = leftTrack.title;``
+    const titleLeft = leftTrack.title;
     
     // preview url
     const previewLeft = leftTrack.preview;
@@ -3144,11 +3216,6 @@ function rightBtn() {
     window.open(deezerRight, '_blank');
 }
 
-// select initial matchups
-let initialMatchups = eras.slice(); // make copy of eras array so changes are not shared
-shuffleArray(initialMatchups);
-console.log(initialMatchups);
-
 // durstenfeld shuffle
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -3157,100 +3224,9 @@ function shuffleArray(array) {
     }
 }
 
-// true when less than two matchups have occured
-let onInitialMatchups = true;
-
-// tracks the eras on screen
-let leftEra;
-let rightEra;
-
-function selectMatchups() {
-    if (onInitialMatchups == true) {
-        leftEra = initialMatchups[0];
-        rightEra = initialMatchups[1];
-        initialMatchups.splice(0, 2);
-        console.log(initialMatchups);
-        console.log(eras);
-
-        if (initialMatchups.length == 0) {
-            onInitialMatchups = false;
-            console.log(onInitialMatchups);
-        }
-    } else {
-        let probabilities = [];
-
-        // sort probabilities array to match index of eras array (BAD PRACTICE, NOT SCALABLE -> fix later by guaranteeing arrays are in same order as declaration or other solution)
-
-        const erasZero = eras[0];
-        const erasOne = eras[1];
-        const erasTwo = eras[2];
-        const erasThree = eras[3];
-
-        probabilities.push(erasZero.probability);
-        probabilities.push(erasOne.probability);
-        probabilities.push(erasTwo.probability);
-        probabilities.push(erasThree.probability);
-
-        // if the index of each era's probability in the probabilities array matches the corresponding era's index in the eras array, the probabilities array was correctly sorted
-        console.log(probabilities);
-        console.log(`${eras.indexOf(library.baroque)}, ${probabilities.indexOf(library.baroque.probability)}`);
-        console.log(`${eras.indexOf(library.classical)}, ${probabilities.indexOf(library.classical.probability)}`);
-        console.log(`${eras.indexOf(library.romantic)}, ${probabilities.indexOf(library.romantic.probability)}`);
-        console.log(`${eras.indexOf(library.modern)}, ${probabilities.indexOf(library.modern.probability)}`);
-        
-
-        leftEra = selectRandomWithProbability(eras, probabilities);
-        rightEra = selectRandomWithProbability(eras, probabilities);
-        console.log(eras);
-        if (rightEra == leftEra) {
-            while (rightEra == leftEra) {
-                rightEra = selectRandomWithProbability(eras, probabilities);
-            }
-        }
-    }
-
-    getRandomTrack(leftEra, rightEra);
-}
-
-// select post-initial matchups
-function selectRandomWithProbability(array, probabilities) {
-    // calculate total probability
-    const totalProbability = probabilities.reduce((acc, prob) => acc + prob, 0);
-
-    // generate a random number between 0 and totalProbability
-    const randomNum = Math.random() * totalProbability;
-    console.log(randomNum);
-
-    // iterate through the array and find the element corresponding to the generated random number
-    let cumulativeProbability = 0;
-    for (let i = 0; i < array.length; i++) {
-        cumulativeProbability += probabilities[i];
-        if (randomNum <= cumulativeProbability) {
-            return array[i];
-        }
-    }
-}
-
-function getRandomTrack(leftEra, rightEra) {
-    const rangeLeft = leftEra.playlist.length -1;
-    const rangeRight = rightEra.playlist.length -1;
-
-    const leftTrackIndex = Math.floor(Math.random() * (rangeLeft + 1));
-    const rightTrackIndex = Math.floor(Math.random() * (rangeRight + 1));
-
-    const leftTrack = leftEra.playlist[leftTrackIndex];
-    leftEra.playlist.splice(leftTrackIndex, 1);
-
-    const rightTrack = rightEra.playlist[rightTrackIndex];
-    rightEra.playlist.splice(rightTrackIndex, 1);
-
-    displayTracks(leftTrack, rightTrack);
-}
-
 // track number of rounds elapsed
 let numOfRounds = 0;
 let currentRound = 1;
-
 
 // update elo and probability function: call on side click
 function updateElo(winner, loser) {
