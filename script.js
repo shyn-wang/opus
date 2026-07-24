@@ -1,48 +1,8 @@
-// set up spotify api
-const Spotify = require('spotify-web-api-js');
-const spotifyApi = new Spotify();
-
 // set up color thief
 const ColorThief = require('colorthief');
 
-// import request to make post requests
-const request = require('request');
-
 // import library file
 const library = require('./library');
-
-function authenticate() {
-    // retrieve access token via client credentials flow
-    const client_id = 'ba8a934edb394682875251ae89f80a51';
-    const client_secret = '8a9d8c6b544a43348a942282c1bc2299';
-
-    const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
-    },
-    form: {
-        grant_type: 'client_credentials'
-    },
-    json: true
-    };
-
-    request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            // input access token to authenticate client
-            spotifyApi.setAccessToken(body.access_token);
-            
-            console.log(response);
-            console.log(body.access_token);
-            console.log(body.expires_in);
-
-            initializePlaylists();
-
-        } else {
-            console.log(error);
-        }
-    });
-}   
 
 // array containing the four era objects
 const eras = [
@@ -52,36 +12,58 @@ const eras = [
     library.modern
 ]
 
-// set the playlist property in each era object to an array containing all the tracks in the playlist on spotify
-function initializePlaylists() {
-    let counter = 0;
-    for (const era of eras) {
-        spotifyApi.getPlaylistTracks(era.playlistID, function(err, data) {
-            if (err) {
-                console.log(err);
-            
-            } else {
-                era.playlist = data.items;
-                era.numOfPlaylistTracks = data.total;
-                console.log(data.total);
-                console.log(era.playlist);
-                counter++;
-                console.log(counter);
+// Helper function to bypass CORS without using a proxy -> TEMPORARY - remove once backend is built
+function fetchDeezerJSONP(url) {
+    return new Promise((resolve, reject) => {
+        // Create a unique callback function name
+        const callbackName = 'deezer_cb_' + Date.now() + Math.floor(Math.random() * 1000);
+        
+        // Define the global callback function
+        window[callbackName] = function(data) {
+            delete window[callbackName]; // Cleanup
+            document.body.removeChild(script); // Cleanup
+            resolve(data);
+        };
 
-                if (counter == 4) {
-                    // change to choose initial matchup once displayTracks function is built
-                    selectMatchups();
-                }
-            }
-        });
+        // Create the script tag
+        const script = document.createElement('script');
+        const sep = url.includes('?') ? '&' : '?';
+        // Tell Deezer to return JSONP and trigger our callback
+        script.src = `${url}${sep}output=jsonp&callback=${callbackName}`;
+        script.onerror = reject;
+        
+        // Append to DOM to trigger the request
+        document.body.appendChild(script);
+    });
+}
+
+// set the playlist property in each era object to an array containing all the tracks in the playlist on deezer
+async function initializePlaylists() {
+    for (const era of eras) {
+        const url = `https://api.deezer.com/playlist/${era.playlistID}/tracks`;
+
+        try {
+            const response = await fetchDeezerJSONP(url);
+
+            era.playlist = response.data; // 'response.data' returns array of tracks
+            era.numOfPlaylistTracks = response.total;
+
+            console.log(era.playlist);
+
+        } catch (error) {
+            console.error(error);
+        }
     }
+
+    selectMatchups();
 }
 
 // intakes objects containing track info
 function displayTracks(leftTrack, rightTrack) {
     // **left side**
+
     // album cover
-    const coverLeft = leftTrack.album.images[1].url;
+    const coverLeft = leftTrack.album.cover_big;
 
     let colorLeftOne;
     let colorLeftTwo;
@@ -129,23 +111,17 @@ function displayTracks(leftTrack, rightTrack) {
         })
         .catch(err => { console.log(err) });
 
-    
-    console.log(coverLeft);
     // piece title
-    const titleLeft = leftTrack.name;
-    console.log(titleLeft);
+    const titleLeft = leftTrack.title;
+    
     // performer
-    const performerLeft = leftTrack.artists[1].name;
-    console.log(performerLeft);
-    // composer
-    const composerLeft = leftTrack.artists[0].name;
-    console.log(composerLeft);
+    const performerLeft = leftTrack.artist.name;
+    
     // preview url
-    const previewLeft = leftTrack.preview_url;
-    console.log(previewLeft);
-    // spotify url
-    spotifyLeft = leftTrack.external_urls.spotify;
-    console.log(spotifyLeft);
+    const previewLeft = leftTrack.preview;
+    
+    // deezer url
+    deezerLeft = leftTrack.link;
 
     // display info
     const coverLeftId = document.getElementById('leftCover');
@@ -155,12 +131,13 @@ function displayTracks(leftTrack, rightTrack) {
     
     coverLeftId.src = coverLeft;
     titleLeftId.innerHTML = titleLeft
-    descriptionLeftId.innerHTML = `${performerLeft}, ${composerLeft}`;
+    descriptionLeftId.innerHTML = ``;
     previewLeftId.src = previewLeft;
 
     // **right side**
+
     // album cover
-    const coverRight = rightTrack.album.images[1].url;
+    const coverRight = rightTrack.album.cover_big;
 
     let colorRightOne;
     let colorRightTwo;
@@ -207,22 +184,14 @@ function displayTracks(leftTrack, rightTrack) {
         })
         .catch(err => { console.log(err) });
 
-    console.log(coverRight);
     // piece title
-    const titleRight = rightTrack.name;
-    console.log(titleRight);
-    // performer
-    const performerRight = rightTrack.artists[1].name;
-    console.log(performerRight);
-    // composer
-    const composerRight = rightTrack.artists[0].name;
-    console.log(composerRight);
+    const titleRight = rightTrack.title;
+    
     // preview url
-    const previewRight = rightTrack.preview_url;
-    console.log(previewRight);
-    // spotify url
-    spotifyRight = rightTrack.external_urls.spotify;
-    console.log(spotifyRight);
+    const previewRight = rightTrack.preview;
+    
+    // deezer url
+    deezerRight = rightTrack.link
 
     // display info
     const coverRightId = document.getElementById('rightCover');
@@ -232,7 +201,7 @@ function displayTracks(leftTrack, rightTrack) {
     
     coverRightId.src = coverRight;
     titleRightId.innerHTML = titleRight;
-    descriptionRightId.innerHTML = `${performerRight}, ${composerRight}`;
+    descriptionRightId.innerHTML = ``;
     previewRightId.src = previewRight;
 }
 
@@ -262,19 +231,19 @@ function rightClick() {
 }
 
 // set to spotify url by displayTracks function
-let spotifyLeft;
+let deezerLeft;
 
 function leftBtn() {
     leftBtnClick = true;
-    window.open(spotifyLeft, '_blank');
+    window.open(deezerLeft, '_blank');
 }
 
 // set to spotfiy url by displayTracks function
-let spotifyRight;
+let deezerRight;
 
 function rightBtn() {
     rightBtnClick = true;
-    window.open(spotifyRight, '_blank');
+    window.open(deezerRight, '_blank');
 }
 
 // select initial matchups
@@ -292,6 +261,7 @@ function shuffleArray(array) {
 
 // true when less than two matchups have occured
 let onInitialMatchups = true;
+
 // tracks the eras on screen
 let leftEra;
 let rightEra;
@@ -340,6 +310,7 @@ function selectMatchups() {
             }
         }
     }
+
     getRandomTrack(leftEra, rightEra);
 }
 
@@ -363,11 +334,6 @@ function selectRandomWithProbability(array, probabilities) {
 }
 
 function getRandomTrack(leftEra, rightEra) {
-    console.log('fhwioafhdaw');
-    console.log(leftEra);
-    console.log(rightEra);
-    console.log(leftEra.playlist);
-
     const rangeLeft = leftEra.playlist.length -1;
     const rangeRight = rightEra.playlist.length -1;
 
@@ -376,11 +342,11 @@ function getRandomTrack(leftEra, rightEra) {
 
     const leftTrack = leftEra.playlist[leftTrackIndex];
     leftEra.playlist.splice(leftTrackIndex, 1);
-    console.log(leftEra.playlist);
+
     const rightTrack = rightEra.playlist[rightTrackIndex];
     rightEra.playlist.splice(rightTrackIndex, 1);
 
-    displayTracks(leftTrack.track, rightTrack.track);
+    displayTracks(leftTrack, rightTrack);
 }
 
 // track number of rounds elapsed
@@ -483,7 +449,6 @@ function updateCurrentRound() {
 
 
 // enable functions to be accessed globally
-window.authenticate = authenticate;
 window.initializePlaylists = initializePlaylists;
 window.leftClick = leftClick;
 window.rightClick = rightClick;

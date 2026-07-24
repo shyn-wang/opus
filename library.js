@@ -11,10 +11,10 @@ class era {
 }
 
 // create objects for each era
-let baroque = new era(1500, [], '7HQ42wa60yV6mPU2c27wWi', 0, 0.25, 'baroque');
-let classical = new era(1500, [], '1MBOHYCHDlP2465YFzvI7d', 0, 0.25, 'classical');
-let romantic = new era(1500, [], '5CqdLCYANgrFICViNS6N5x', 0, 0.25, 'romantic');
-let modern = new era(1500, [], '2lUzj0RZHxXzFgPW3UaLqP', 0, 0.25, 'modern');
+let baroque = new era(1500, [], '15547212683', 0, 0.25, 'baroque');
+let classical = new era(1500, [], '15547212643', 0, 0.25, 'classical');
+let romantic = new era(1500, [], '15547212583', 0, 0.25, 'romantic');
+let modern = new era(1500, [], '15547212563', 0, 0.25, 'modern');
 
 // export objects
 module.exports = {
