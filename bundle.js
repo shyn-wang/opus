@@ -2959,7 +2959,6 @@ async function initializePlaylists() {
 
             era.playlist = response.data; // 'response.data' returns array of tracks
             era.numOfPlaylistTracks = response.total;
-            console.log(era);
 
         } catch (error) {
             console.error(error);
@@ -3234,7 +3233,7 @@ function updateElo(winner, loser) {
     currentRound++;
     updateCurrentRound();
     
-    if (numOfRounds == 20) {
+    if (numOfRounds == 15) {
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
@@ -3256,7 +3255,7 @@ function updateElo(winner, loser) {
 
 function updateCurrentRound() {
     const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.innerHTML = `${currentRound}/20`;
+    roundTrackerId.innerHTML = `${currentRound}/15`;
 }
 
 
