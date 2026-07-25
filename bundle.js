@@ -2980,39 +2980,33 @@ function selectMatchups() {
         }
         
     } else { // select matchups based on probabilities
-        leftEra = selectRandomWithProbability();
-        rightEra = selectRandomWithProbability();
-        
-        if (rightEra === leftEra) { // force distinct matchups
-            while (rightEra === leftEra) {
-                rightEra = selectRandomWithProbability();
-            }
-        }
+        leftEra = selectRandomWithProbability(eras);
+        rightEra = selectRandomWithProbability(eras.filter(era => era !== leftEra)); // remove left side selected era from sample pool for right side
     }
 
     getRandomTrack(leftEra, rightEra);
 }
 
-// select post-initial matchups using a roulette wheel selection algorithm
-function selectRandomWithProbability() {
-    // calculate sum of all probability weights (total range)
+// select post-initial matchups using a roulette wheel selection system
+function selectRandomWithProbability(possibleSelections) {
+    // calculate sum of all individual probability weights (total range)
     let probabilitySum = 0;
 
-    for (const era of eras) {
-        probabilitySum += era.probability;
+    for (const selection of possibleSelections) {
+        probabilitySum += selection.probability;
     }
 
     // generate a random number between 0 and probabilitySum
     const randomNum = Math.random() * probabilitySum;
 
-    // traverse eras array and add up probability weightings as individual slices until the randomly selected number is 'captured' by one of the eras  
+    // traverse eras and add up probability weightings as individual slices until the randomly selected number is 'captured' by one of the eras  
     let cumulative = 0;
 
-    for (const era of eras) {
-        cumulative += era.probability;
+    for (const selection of possibleSelections) {
+        cumulative += selection.probability;
 
-        if (randomNum <= cumulative) { // random num is captured by one of the slices
-            return era; // break
+        if (randomNum <= cumulative) { // random num is captured by slice just added
+            return selection; // break loop
         }
     }
 }
@@ -3052,22 +3046,22 @@ async function displayTracks(leftTrack, rightTrack) {
 
     // **left side**
 
-    // album cover
     const coverLeft = leftTrack.album.cover_big;
+    const titleLeft = leftTrack.title;
+    const previewLeft = leftTrack.preview;
+    deezerLeft = leftTrack.link;
 
     let colorLeftOne;
     let colorLeftTwo;
 
-    ColorThief.getPalette(coverLeft, 5)
+    ColorThief.getPalette(coverLeft, 5) // extract colors from album cover
         .then(palette => { 
             colorLeftOne = palette[0];
-            console.log(colorLeftOne);
-
             colorLeftTwo = palette[1];
-            console.log(colorLeftTwo);
-
+            
+            // style ui components based on extracted colors
             const leftSideId = document.getElementById('left');
-            leftSideId.style.background = `linear-gradient(206deg, rgb(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}), rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]})`;
+            leftSideId.style.background = `linear-gradient(206deg, rgb(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}), rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}))`;
 
             const leftTitleId = document.getElementById('leftTitle');
             leftTitleId.style.color = `rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]})`;
@@ -3082,15 +3076,15 @@ async function displayTracks(leftTrack, rightTrack) {
             leftButtonLabelId.style.color = `rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]})`;
 
             leftSideId.addEventListener('mouseenter', function() {
-                leftSideId.style.background = leftSideId.style.background = `linear-gradient(206deg, rgba(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}, 0.62), rgba(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+                leftSideId.style.background = `linear-gradient(206deg, rgba(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}, 0.62), rgba(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
             });
 
             leftSideId.addEventListener('mouseleave', function() {
                 leftSideId.style.background = `linear-gradient(206deg, rgb(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}), rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}))`;
             });
-
+            
+            // create shadow effect
             function generateShadowColor(rgbColor) {
-                // Reduce the brightness of the color for the shadow effect
                 const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
                 return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
             }
@@ -3100,15 +3094,6 @@ async function displayTracks(leftTrack, rightTrack) {
 
         })
         .catch(err => { console.log(err) });
-
-    // piece title
-    const titleLeft = leftTrack.title;
-    
-    // preview url
-    const previewLeft = leftTrack.preview;
-    
-    // deezer url
-    deezerLeft = leftTrack.link;
 
     // display info
     const coverLeftId = document.getElementById('leftCover');
@@ -3123,8 +3108,10 @@ async function displayTracks(leftTrack, rightTrack) {
 
     // **right side**
 
-    // album cover
     const coverRight = rightTrack.album.cover_big;
+    const titleRight = rightTrack.title;
+    const previewRight = rightTrack.preview;
+    deezerRight = rightTrack.link
 
     let colorRightOne;
     let colorRightTwo;
@@ -3138,7 +3125,7 @@ async function displayTracks(leftTrack, rightTrack) {
             console.log(colorRightTwo);
 
             const rightSideId = document.getElementById('right');
-            rightSideId.style.background = `linear-gradient(206deg, rgb(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}), rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]})`;
+            rightSideId.style.background = `linear-gradient(206deg, rgb(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}), rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}))`;
 
             const rightTitleId = document.getElementById('rightTitle');
             rightTitleId.style.color = `rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]})`;
@@ -3153,7 +3140,7 @@ async function displayTracks(leftTrack, rightTrack) {
             rightButtonLabelId.style.color = `rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]})`;
 
             rightSideId.addEventListener('mouseenter', function() {
-                rightSideId.style.background = rightSideId.style.background = `linear-gradient(206deg, rgba(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}, 0.62), rgba(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+                rightSideId.style.background = `linear-gradient(206deg, rgba(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}, 0.62), rgba(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
             });
 
             rightSideId.addEventListener('mouseleave', function() {
@@ -3161,7 +3148,6 @@ async function displayTracks(leftTrack, rightTrack) {
             });
 
             function generateShadowColor(rgbColor) {
-                // Reduce the brightness of the color for the shadow effect
                 const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
                 return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
             }
@@ -3170,15 +3156,6 @@ async function displayTracks(leftTrack, rightTrack) {
             rightSideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorRightOne)}`;
         })
         .catch(err => { console.log(err) });
-
-    // piece title
-    const titleRight = rightTrack.title;
-    
-    // preview url
-    const previewRight = rightTrack.preview;
-    
-    // deezer url
-    deezerRight = rightTrack.link
 
     // display info
     const coverRightId = document.getElementById('rightCover');
@@ -3193,53 +3170,29 @@ async function displayTracks(leftTrack, rightTrack) {
 }
 
 
-// check to see if either the button or the side was clicked
-let leftBtnClick = false;
-let rightBtnClick = false;
-
 function leftClick() {
-    if (leftBtnClick == true) {
-        console.log('btn left clicked');
-        leftBtnClick = false;
-    } else {
-        console.log('side left clicked');
-        updateElo(leftEra, rightEra);
-    }
+    updateElo(leftEra, rightEra); // left era is the winner
 }
 
 function rightClick() {
-    if (rightBtnClick == true) {
-        console.log('btn right clicked');
-        rightBtnClick = false;
-    } else {
-        console.log('side right clicked');
-        updateElo(rightEra, leftEra);
-    }
+    updateElo(rightEra, leftEra); // right era is the winner
+    
 }
 
-// set to spotify url by displayTracks function
+// stores external url
 let deezerLeft;
+let deezerRight;
 
-function leftBtn() {
-    leftBtnClick = true;
+function leftBtn(event) {
+    event.stopPropagation(); // block click from being registered by overall side (button absorbs click)
     window.open(deezerLeft, '_blank');
 }
 
-// set to spotfiy url by displayTracks function
-let deezerRight;
-
-function rightBtn() {
-    rightBtnClick = true;
+function rightBtn(event) {
+    event.stopPropagation();
     window.open(deezerRight, '_blank');
 }
 
-// durstenfeld shuffle
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
 
 // track number of rounds elapsed
 let numOfRounds = 0;
@@ -3252,31 +3205,35 @@ function updateElo(winner, loser) {
     const loserRating = loser.elo;
     const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
 
-    // update Elos
-    const K = 32;
+    // update elos
+    const K = 40;
     const winnerEloGained = K * (1 - winProbability);
-    const loserEloLost = K * (0 - winProbability);
+    const loserEloLost = -1 * winnerEloGained;
 
     winner.elo = winnerRating + winnerEloGained;
     loser.elo = loserRating + loserEloLost;
 
     // update probabilities based on elo gained/lost
-    const winnerUpdatedProbability = winnerEloGained / 128;
-    const loserUpdatedProbability = loserEloLost / 128;
+    const winnerProbabilityGain = winnerEloGained / 400;
+    const loserProbabilityLoss = loserEloLost / 400;
 
-    winner.probability += winnerUpdatedProbability;
-
-    if ((loser.probability + loserUpdatedProbability) < 0.10) {
-        loser.probability = 0.10;
+    if ((winner.probability + winnerProbabilityGain) > 0.40) {
+        winner.probability = 0.40; // cap max probability at 0.40
     } else {
-        loser.probability += loserUpdatedProbability;
+        winner.probability += winnerProbabilityGain;
+    }
+
+    if ((loser.probability + loserProbabilityLoss) < 0.10) {
+        loser.probability = 0.10; // cap min probability at 0.10
+    } else {
+        loser.probability += loserProbabilityLoss;
     }
 
     numOfRounds++;
     currentRound++;
     updateCurrentRound();
     
-    if (numOfRounds == 15) {
+    if (numOfRounds == 20) {
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
@@ -3287,12 +3244,21 @@ function updateElo(winner, loser) {
         console.log(eras);
 
         const erasSerialized = JSON.stringify(eras);
+
         sessionStorage.setItem('results', erasSerialized);
         window.location.href = 'results.html';
+
     } else {
         selectMatchups();
     }
 }
+
+function updateCurrentRound() {
+    const roundTrackerId = document.getElementById('roundTracker');
+    roundTrackerId.innerHTML = `${currentRound}/20`;
+}
+
+
 
 function displayResults() {
     // retrieve sorted eras array from sessionStorage
@@ -3305,6 +3271,7 @@ function displayResults() {
     const second = results[1].name;
     const third = results[2].name;
     const fourth = results[3].name;
+
     let recommendedComposers;
 
     if (first == 'romantic') {
@@ -3336,11 +3303,14 @@ function displayResults() {
     composerThreeId.innerHTML = recommendedComposers[2];
 }
 
-function updateCurrentRound() {
-    const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.innerHTML = `${currentRound}/15`;
-}
 
+// durstenfeld shuffle
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
 
 // enable functions to be accessed globally
 window.initializePlaylists = initializePlaylists;
