@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/stage.css"/>
     <title>Opus</title>
 </head>
-<body onload="initializePlaylists()">
+<body onload="initializePlaylists('composers'), updateCurrentRound()">
     <div class = 'stage'>
         <div class = 'sides' id ='left' onclick="leftClick()">
             <div class ='left'>
@@ -26,7 +26,7 @@
         </div>
         <div class = 'sides' id ='right' onclick="rightClick()">
             <div id="roundTracker">
-                1/15
+                1/__
             </div>
             <div class ='right'>
                 <img src="" alt="" width = '260' height = '260' class="albumCover" id="rightCover">

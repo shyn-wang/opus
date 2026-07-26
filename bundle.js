@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-// class representing each era
-class era {
+// class representing a composer/era
+class category {
     constructor(elo, playlist, playlistID, numOfPlaylistTracks, probability, name) {
         this.elo = elo;
         this.playlist = playlist;
@@ -12,17 +12,35 @@ class era {
 }
 
 // create objects for each era
-let baroque = new era(1500, [], '15565783443', 0, 0.25, 'baroque');
-let classical = new era(1500, [], '15565783423', 0, 0.25, 'classical');
-let romantic = new era(1500, [], '15565783383', 0, 0.25, 'romantic');
-let modern = new era(1500, [], '15565783343', 0, 0.25, 'modern');
+const baroque = new category(1500, [], '15565783443', 0, 0.25, 'baroque');
+const classical = new category(1500, [], '15565783423', 0, 0.25, 'classical');
+const romantic = new category(1500, [], '15565783383', 0, 0.25, 'romantic');
+const modern = new category(1500, [], '15565783343', 0, 0.25, 'modern');
+
+// create objects for each composer
+const bach = new category(1500, [], '15568732003', 0, 0.125, 'bach');
+const mozart = new category(1500, [], '15568731923', 0, 0.125, 'mozart');
+const beethoven = new category(1500, [], '15568731863', 0, 0.125, 'beethoven');
+const chopin = new category(1500, [], '15568731843', 0, 0.125, 'chopin');
+const liszt = new category(1500, [], '15568731783', 0, 0.125, 'liszt');
+const rachmaninoff = new category(1500, [], '15568731743', 0, 0.125, 'rachmaninoff');
+const scriabin = new category(1500, [], '15568731703', 0, 0.125, 'scriabin');
+const debussy = new category(1500, [], '15568731663', 0, 0.125, 'debussy');
 
 // export objects
 module.exports = {
     baroque,
     classical,
     romantic,
-    modern
+    modern,
+    bach,
+    mozart,
+    beethoven,
+    chopin,
+    liszt,
+    rachmaninoff,
+    scriabin,
+    debussy
 }
 },{}],2:[function(require,module,exports){
 /*
@@ -2905,23 +2923,42 @@ const library = require('./library');
 // set up color thief
 const ColorThief = require('colorthief');
 
-// array containing the four era objects
+// import eras & composers
 const eras = [
     library.baroque,
     library.classical,
     library.romantic,
     library.modern
-]
+];
 
-// true when less than two matchups have occured
+const composers = [
+    library.bach,
+    library.mozart,
+    library.beethoven,
+    library.chopin,
+    library.liszt,
+    library.rachmaninoff,
+    library.scriabin,
+    library.debussy
+];
+
+let whichMode; // era or composer mode
+let categories; // assigned to eras or composers depending on whichMode
+let totalRounds;
+
+// matchmaking algorithm settings - based on mode
+const K = 40;
+let probabilityDivisor;
+let probabilityCeil;
+let probabilityFloor;
+
+// true when less than two (eras) or four (composers) matchups have occured
 let onInitialMatchups = true;
-let initialMatchups = eras.slice(); // make copy of eras array so changes are not shared
+let initialMatchups;
 
-shuffleArray(initialMatchups);
-
-// tracks the eras on screen
-let leftEra;
-let rightEra;
+// tracks the categories on screen
+let leftCategory;
+let rightCategory;
 
 
 // Helper function to bypass CORS without using a proxy -> TEMPORARY - remove once backend is built
@@ -2949,16 +2986,40 @@ function fetchDeezerJSONP(url) {
     });
 }
 
-// set the playlist property in each era object to an array containing all the tracks in the playlist on deezer
-async function initializePlaylists() {
-    for (const era of eras) {
-        const url = `https://api.deezer.com/playlist/${era.playlistID}/tracks`;
+// set the playlist property in each object to an array containing all the tracks in the playlist on deezer
+async function initializePlaylists(mode) {
+    // check mode
+    if (mode === 'eras') {
+        whichMode = 'eras';
+        categories = eras.slice();
+
+        totalRounds = 15;
+        probabilityDivisor = 400;
+        probabilityCeil = 0.55;
+        probabilityFloor = 0.12;
+
+    } else if (mode === 'composers') {
+        whichMode = 'composers';
+        categories = composers.slice();
+
+        totalRounds = 30;
+        probabilityDivisor = 600;
+        probabilityCeil = 0.35;
+        probabilityFloor = 0.07;
+    }
+
+    initialMatchups = categories.slice(); // make copy of categories array so changes are not shared
+    shuffleArray(initialMatchups); // generate order of initial matchups
+
+    for (const category of categories) {
+        const url = `https://api.deezer.com/playlist/${category.playlistID}/tracks`;
 
         try {
             const response = await fetchDeezerJSONP(url);
 
-            era.playlist = response.data; // 'response.data' returns array of tracks
-            era.numOfPlaylistTracks = response.total;
+            category.playlist = response.data; // 'response.data' returns array of tracks
+            category.numOfPlaylistTracks = response.total;
+            console.log(category);
 
         } catch (error) {
             console.error(error);
@@ -2970,21 +3031,21 @@ async function initializePlaylists() {
 
 function selectMatchups() {
     if (onInitialMatchups) { // select initial matchups randomly
-        leftEra = initialMatchups[0];
-        rightEra = initialMatchups[1];
+        leftCategory = initialMatchups[0];
+        rightCategory = initialMatchups[1];
 
-        initialMatchups.splice(0, 2); // remove eras used in first comparison -> remaining eras participate in second comparison
+        initialMatchups.splice(0, 2); // remove eras/composers used in current comparison -> remaining eras/composers participate in further comparisons
         
         if (initialMatchups.length === 0) {
-            onInitialMatchups = false; // both starting comparisons are made
+            onInitialMatchups = false; // all starting pairs of comparisons are made
         }
         
     } else { // select matchups based on probabilities
-        leftEra = selectRandomWithProbability(eras);
-        rightEra = selectRandomWithProbability(eras.filter(era => era !== leftEra)); // remove left side selected era from sample pool for right side
+        leftCategory = selectRandomWithProbability(categories);
+        rightCategory = selectRandomWithProbability(categories.filter(category => category !== leftCategory)); // remove left side selected category from sample pool for right side
     }
 
-    getRandomTrack(leftEra, rightEra);
+    getRandomTrack(leftCategory, rightCategory);
 }
 
 // select post-initial matchups using a roulette wheel selection system
@@ -2999,7 +3060,7 @@ function selectRandomWithProbability(possibleSelections) {
     // generate a random number between 0 and probabilitySum
     const randomNum = Math.random() * probabilitySum;
 
-    // traverse eras and add up probability weightings as individual slices until the randomly selected number is 'captured' by one of the eras  
+    // traverse eras/composers and add up probability weightings as individual slices until the randomly selected number is 'captured' by one of the categories  
     let cumulative = 0;
 
     for (const selection of possibleSelections) {
@@ -3011,18 +3072,18 @@ function selectRandomWithProbability(possibleSelections) {
     }
 }
 
-function getRandomTrack(leftEra, rightEra) {
-    const rangeLeft = leftEra.playlist.length -1;
-    const rangeRight = rightEra.playlist.length -1;
+function getRandomTrack(leftCategory, rightCategory) {
+    const rangeLeft = leftCategory.playlist.length -1;
+    const rangeRight = rightCategory.playlist.length -1;
 
     const leftTrackIndex = Math.floor(Math.random() * (rangeLeft + 1));
     const rightTrackIndex = Math.floor(Math.random() * (rangeRight + 1));
 
-    const leftTrack = leftEra.playlist[leftTrackIndex];
-    leftEra.playlist.splice(leftTrackIndex, 1); // remove used track from playlist
+    const leftTrack = leftCategory.playlist[leftTrackIndex];
+    leftCategory.playlist.splice(leftTrackIndex, 1); // remove used track from playlist
 
-    const rightTrack = rightEra.playlist[rightTrackIndex];
-    rightEra.playlist.splice(rightTrackIndex, 1);
+    const rightTrack = rightCategory.playlist[rightTrackIndex];
+    rightCategory.playlist.splice(rightTrackIndex, 1);
 
     displayTracks(leftTrack, rightTrack);
 }
@@ -3171,11 +3232,11 @@ async function displayTracks(leftTrack, rightTrack) {
 
 
 function leftClick() {
-    updateElo(leftEra, rightEra); // left era is the winner
+    updateElo(leftCategory, rightCategory); // left category is the winner
 }
 
 function rightClick() {
-    updateElo(rightEra, leftEra); // right era is the winner
+    updateElo(rightCategory, leftCategory); // right category is the winner
     
 }
 
@@ -3206,7 +3267,6 @@ function updateElo(winner, loser) {
     const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
 
     // update elos
-    const K = 40;
     const winnerEloGained = K * (1 - winProbability);
     const loserEloLost = -1 * winnerEloGained;
 
@@ -3214,17 +3274,17 @@ function updateElo(winner, loser) {
     loser.elo = loserRating + loserEloLost;
 
     // update probabilities based on elo gained/lost
-    const winnerProbabilityGain = winnerEloGained / 400;
-    const loserProbabilityLoss = loserEloLost / 400;
+    const winnerProbabilityGain = winnerEloGained / probabilityDivisor;
+    const loserProbabilityLoss = loserEloLost / probabilityDivisor;
 
-    if ((winner.probability + winnerProbabilityGain) > 0.40) {
-        winner.probability = 0.40; // cap max probability at 0.40
+    if ((winner.probability + winnerProbabilityGain) > probabilityCeil) {
+        winner.probability = probabilityCeil; // cap max probability
     } else {
         winner.probability += winnerProbabilityGain;
     }
 
-    if ((loser.probability + loserProbabilityLoss) < 0.10) {
-        loser.probability = 0.10; // cap min probability at 0.10
+    if ((loser.probability + loserProbabilityLoss) < probabilityFloor) {
+        loser.probability = probabilityFloor; // cap min probability
     } else {
         loser.probability += loserProbabilityLoss;
     }
@@ -3233,19 +3293,18 @@ function updateElo(winner, loser) {
     currentRound++;
     updateCurrentRound();
     
-    if (numOfRounds == 15) {
+    if (numOfRounds === totalRounds) { // end of test
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
             }
         }
 
-        eras.sort(sortOrder('elo'));
-        console.log(eras);
+        categories.sort(sortOrder('elo'));
 
-        const erasSerialized = JSON.stringify(eras);
+        const categoriesSerialized = JSON.stringify(categories);
 
-        sessionStorage.setItem('results', erasSerialized);
+        sessionStorage.setItem('results', categoriesSerialized);
         window.location.href = 'results.html';
 
     } else {
@@ -3255,15 +3314,15 @@ function updateElo(winner, loser) {
 
 function updateCurrentRound() {
     const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.innerHTML = `${currentRound}/15`;
+    roundTrackerId.innerHTML = `${currentRound}/${totalRounds}`;
 }
 
 
 
 function displayResults() {
-    // retrieve sorted eras array from sessionStorage
-    const erasStored = sessionStorage.getItem('results');
-    const results = JSON.parse(erasStored);
+    // retrieve sorted results array from sessionStorage
+    const categoriesStored = sessionStorage.getItem('results');
+    const results = JSON.parse(categoriesStored);
     console.log(results);
 
     // display results
@@ -3271,18 +3330,6 @@ function displayResults() {
     const second = results[1].name;
     const third = results[2].name;
     const fourth = results[3].name;
-
-    let recommendedComposers;
-
-    if (first == 'romantic') {
-        recommendedComposers = ['Chopin', 'Liszt', 'Schubert'];
-    } else if (first == 'classical') {
-        recommendedComposers = ['Beethoven', 'Mozart', 'Haydn'];
-    } else if (first == 'baroque') {
-        recommendedComposers = ['J.S. Bach', 'Handel', 'Couperin'];
-    } else if (first == 'modern') {
-        recommendedComposers = ['Debussy', 'Ravel', 'Scriabin'];
-    }
 
     const firstId = document.getElementById('first');
     const secondId = document.getElementById('second');
@@ -3293,14 +3340,6 @@ function displayResults() {
     secondId.innerHTML = `2. ${second}`;
     thirdId.innerHTML = `3. ${third}`;
     fourthId.innerHTML = `4. ${fourth}`;
-
-    const composerOneId = document.getElementById('composerOne');
-    const composerTwoId = document.getElementById('composerTwo');
-    const composerThreeId = document.getElementById('composerThree');
-
-    composerOneId.innerHTML = recommendedComposers[0];
-    composerTwoId.innerHTML = recommendedComposers[1];
-    composerThreeId.innerHTML = recommendedComposers[2];
 }
 
 
@@ -3314,6 +3353,7 @@ function shuffleArray(array) {
 
 // enable functions to be accessed globally
 window.initializePlaylists = initializePlaylists;
+window.updateCurrentRound = updateCurrentRound;
 window.leftClick = leftClick;
 window.rightClick = rightClick;
 window.leftBtn = leftBtn;
