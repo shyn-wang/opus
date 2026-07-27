@@ -1,7 +1,7 @@
 # Opus
 
 ## Introduction
-Classical music is one of the richest and most rewarding musical genres to listen to, featuring of a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is for this same reason that it can often feel intimidating and unapproachable for newcomers, as there are simply so many possible places to start.
+Classical music is one of the richest and most rewarding musical genres to listen to, featuring of a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is for this same reason that it can often feel intimidating and unapproachable for newcomers, as there are so many possible places to start.
 
 _Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
 
@@ -12,7 +12,7 @@ When using Opus, users can choose between either an era or composer mode:
 
 **Composer Mode** - a 30 round comparison test identifies a user's preferences for eight significant composers (js bach, mozart, beethoven, chopin, liszt, rachmaninoff, scriabin, and debussy)
 
-The comparison test for both modes will present two selected pieces each round alongside a 30-second preview of each, and prompt users to choose the one they prefer. For information on the internal logic of the matchmaking and ranking systems, see [matchmaking algorithm](#matchmakingranking-algorithm).
+The comparison test for both modes will present two selected pieces each round alongside a 30-second preview of each, and prompt users to choose the one they prefer. For information on the internal logic of the matchmaking and ranking systems, see [matchmaking/ranking algorithm](#matchmakingranking-algorithm).
 
 At the end of the test, the top-ranked era(s) or composer(s) will be presented to the user as recommended starting points for listening.
 
@@ -36,7 +36,7 @@ Opus communicates with the publicly accessible Deezer API (no authentication req
 ### Matchmaking/Ranking Algorithm
 _The core logic that powers Opus under-the-hood is built on two interconnected systems: an elo rating system and a probabilistic roulette-wheel selection system._
 
-#### Elo rating system
+#### Elo rating system (Ranking)
 The elo rating system is used to rank the relative positions of different eras or composers based on user selections. At the start of a test, all competing categories are assigned base elo ratings of 1500, which are then updated round over round in zero-sum changes when a user picks their winner.
 
 _An elo-based system was specifically chosen in place of a conventional point tally model for its dynamic handling of rating changes._
@@ -69,7 +69,7 @@ _With dynamic rating changes in effect, no era or composer is ever truly elimina
 
 
 
-#### Roulette wheel selection system
+#### Roulette wheel selection system (Matchmaking)
 
 
 
