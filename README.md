@@ -1,7 +1,7 @@
 # Opus
 
 ## Introduction
-Classical music is one of the richest and most rewarding musical genres to listen to, featuring of a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, for this same reason, it can often feel intimidating and unapproachable for newcomers, as there are simply so many possible places to start.
+Classical music is one of the richest and most rewarding musical genres to listen to, featuring of a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is for this same reason that it can often feel intimidating and unapproachable for newcomers, as there are simply so many possible places to start.
 
 _Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
 
