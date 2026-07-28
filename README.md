@@ -5,7 +5,7 @@ Classical music is one of the richest and most rewarding musical genres to liste
 
 _Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
 
-## How it Works
+## Tutorial
 When using Opus, users can choose between either an era or composer mode:
 
 **Era Mode** - a 15 round comparison test identifies a user's preferences for the four major stylistic eras (baroque, classical, romantic, and modern)
@@ -77,7 +77,7 @@ In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease
 
 In both modes, relative floors and ceilings are in place to prevent a single category from ever being hidden entirely or developing a runaway lead in probability.
 
-When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the selection pool.
+When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the competition pool.
 <br><br>
 
 <img width="2720" height="880" alt="weighted_probability_selection" src="https://github.com/user-attachments/assets/e36a8dda-ee31-4c6a-810b-4544645d4a33" />
@@ -88,7 +88,7 @@ _Under this model, higher rated categories are awarded with larger probability w
 
 This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing categories. Doing so prevents any category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
 
-Moreover, any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility to the user and testing whether the jump in rating was justified.
+Moreover, any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility and placing it in more matchups to test whether the jump in rating was justified.
 
 **Note**
 
