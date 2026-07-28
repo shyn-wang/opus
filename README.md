@@ -64,7 +64,7 @@ winner rating change = K * (1 - win probability) | loser rating change = -(winne
 
 _An elo-based system was specifically chosen in place of a conventional point tally model for its dynamic handling of rating changes and self-correcting nature. Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing._
 
-For instance, If a user initially chooses against pieces pertaining to a specific era, but is later shown a work they love matched against a high-ranking opponent, picking the lower-rated era provide it with an <ins>opportunity</ins> (see roulette wheel selection breakdown) to recover in ranking and end the test as one of the user's top-ranked preferences. This prevents outlier pieces from drastically hurting an otherwise favoured category, rewarding overall consistency.
+For instance, If a user initially chooses against pieces pertaining to a specific era, but is later shown a work they love matched against a high-ranking opponent, picking the lower-rated era provides it with an <ins>opportunity</ins> (see roulette wheel selection breakdown) to recover in ranking and end the test as one of the user's top-ranked preferences. This prevents outlier pieces from drastically hurting an otherwise favoured category, rewarding overall consistency.
 
 #### Roulette wheel selection system (Matchmaking)
 The roulette wheel selection system is used to apply weighted probabilities to the matchmaking process in place of random generation. 
@@ -75,7 +75,7 @@ In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a si
 
 In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease in a single category's probability weight per round (increased round count in composer mode calls for more gradual changes in probability).
 
-In both modes, relative floors and ceilings are in place to prevent a single category from ever being hidden entirely or developing a runaway lead in probability.
+In both modes, relative floors and ceilings are in place to prevent any category from ever being hidden entirely or developing a runaway lead in probability.
 
 When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the competition pool.
 <br><br>
@@ -88,7 +88,7 @@ _Under this model, higher rated categories are awarded with larger probability w
 
 This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing categories. Doing so prevents any category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
 
-Moreover, any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility and placing it in more matchups to test whether the jump in rating was justified.
+Moreover, with the weighting floor in place, low-ranking categories are still provided opportunities to appear in matchups and potentially mount comebacks. Any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility and placing it into more matchups to test whether the jump in rating was justified.
 
 **Note**
 
