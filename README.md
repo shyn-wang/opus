@@ -1,12 +1,12 @@
 # Opus
 
 ## Introduction
-Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is for this same reason that it often feels intimidating and unapproachable to newcomers, as there are so many possible places to start.
+Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are so many possible places to start.
 
 _Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
 
-## Tutorial
-When using Opus, users can choose between either an era or composer mode:
+## Using Opus
+When starting a test, users can choose between either an era or composer mode:
 
 **Era Mode** - a 15 round comparison test identifies a user's preferences for the four major stylistic eras (baroque, classical, romantic, and modern)
 
@@ -62,14 +62,14 @@ winner rating change = K * (1 - win probability) | loser rating change = -(winne
 
 <br>
 
-_An elo-based system was specifically chosen in place of a conventional point tally model for its dynamic handling of rating changes and self-correcting nature. Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing._
+_An elo-based system was specifically chosen in place of a conventional point-tally model for its dynamic handling of rating changes and self-correcting nature, both of which power the [probabilistic matchmaking algorithm](#roulette-wheel-selection-system-matchmaking). Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing._
 
-For instance, If a user initially chooses against pieces pertaining to a specific era, but is later shown a work they love matched against a high-ranking opponent, picking the lower-rated era provides it with an <ins>opportunity</ins> (see roulette wheel selection breakdown) to recover in ranking and end the test as one of the user's top-ranked preferences. This prevents outlier pieces from drastically hurting an otherwise favoured category, rewarding overall consistency.
+For instance, if a user initially chooses against pieces pertaining to a specific era, but is later shown a work they love matched against a high-ranking opponent, picking the lower-rated era provides it with an <ins>opportunity</ins> (see roulette wheel selection breakdown) to recover in ranking and end the test as one of the user's top-ranked preferences. This prevents outlier pieces from drastically hurting an otherwise favoured category, rewarding overall consistency.
 
 #### Roulette wheel selection system (Matchmaking)
-The roulette wheel selection system is used to apply weighted probabilities to the matchmaking process in place of random generation. 
+The roulette wheel selection system is used to apply weighted probabilities (based on relative elo ratings) to the matchmaking process in place of random generation. 
 
-At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when winners are selected. The change in the probabilities of the winning and losing category per round are equal to the change in elo rating that occurs, divided by a constant value.
+At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when winners are selected. The change in the probabilities of the winning and losing category per round are proportional to the change in elo rating that occurs, divided by a constant value.
 
 In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a single category's probability weight per round.
 
