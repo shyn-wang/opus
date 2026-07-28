@@ -24,7 +24,7 @@ At the end of the test, the top-ranked era(s) or composer(s) will be presented t
 
 The A/B, sample-based testing methodology employed by Opus is inherently prone to inaccuracies, as it is impossible to form a complete opinion on a piece from a random 30-second clip (true for any genre, but especially so for classical, which is built on the idea of long-form consumption). Moreover, the algorithm may pair works of entirely different contexts with each other (i.e. one movement of a classical sonata vs a romantic lieder), making some comparisons inherently unfair. Consequently, results may be skewed in favor of eras or composers that do not best reflect the taste of the user.
 
-Generally speaking, the composer test will provide a more consistent experience than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin vs debussy under modern). However, it is also fundamentally limited in scope by the omission of many key composers for brevity.
+Generally speaking, the composer test will provide a more consistent experience than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin vs debussy under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity.
 
 Even with such limitations in mind, Opus can hopefully still prove valuable to complete newcomers to the world of classical music by acting as the guide that narrows their field of focus and directs their attention, ultimately helping them uncover music they love.
 
@@ -69,4 +69,30 @@ For instance, If a user initially chooses against pieces pertaining to a specifi
 #### Roulette wheel selection system (Matchmaking)
 The roulette wheel selection system is used to apply weighted probabilities to the matchmaking process in place of random generation. 
 
+At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when winners are selected. The change in the probabilities of the winning and losing category per round are equal to the change in elo rating that occurs, divided by a constant value.
+
+In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a single category's probability weight per round.
+
+In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease in a single category's probability weight per round (increased round count in composer mode calls for more gradual changes in probability).
+
+In both modes, relative floors and ceilings are in place to prevent a single category from ever being hidden entirely or developing a runaway lead in probability.
+
+When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the selection pool.
+<br><br>
+
+<img width="2720" height="880" alt="weighted_probability_selection" src="https://github.com/user-attachments/assets/e36a8dda-ee31-4c6a-810b-4544645d4a33" />
+<sub>visual representation of the probability weights as 'slices' in era mode</sub>
+
+<br><br>
+_Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories are given smaller probability weights, reducing their likelihood of being shown._
+
+This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing categories. Doing so prevents any category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
+
+Moreover, any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility to the user and testing whether the jump in rating was justified.
+
+**Note**
+
+The probabilistic matchmaking system is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that includes every category. 
+
+By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to rank them against each other. With this in mind, the composer test will only display the top four ranked composers on the results page.
 
