@@ -86,9 +86,9 @@ When determining the matchup for each round, a random number is generated rangin
 <br><br>
 _Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories are given smaller probability weights, reducing their likelihood of being shown._
 
-This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing categories. Doing so prevents any category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
+This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing options. Doing so _rewards categories that are consistently rated highly_ and prevents any one category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
 
-Moreover, with the weighting floor in place, low-ranking categories are still provided opportunities to appear in matchups and potentially mount comebacks. Any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing its overall visibility and placing it into more matchups to test whether the jump in rating was justified.
+With the weighting floor in place, the system also ensures that low-ranking categories are still provided opportunities to appear in matchups and potentially mount comebacks. Any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing overall visibility and forcing it into more matchups to test if it can defend its position and justify the jump in rating.
 
 **Note**
 
