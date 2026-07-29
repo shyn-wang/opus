@@ -34,7 +34,8 @@ Even with such limitations in mind, Opus can hopefully still prove valuable to c
 Opus communicates with the publicly accessible Deezer API (no authentication required) via GET requests to retrieve track data from curated composer and era specific playlists.
 
 ### Matchmaking/Ranking Algorithm
-_The core logic that powers Opus under-the-hood is built on two interconnected systems: an elo rating system and a probabilistic roulette wheel selection system._
+_The core logic that powers Opus under-the-hood is built on two interconnected systems: an elo rating system and a probabilistic roulette wheel selection system_
+[(approach explained)](#why-take-this-approach).
 
 #### Elo rating system (Ranking)
 The elo rating system is used to rank the relative positions of different eras or composers based on user selections.
@@ -109,7 +110,7 @@ Overall, the algorithm works to effectively prevent outlier pieces from exerting
 
 #### Note
 
-The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking including every category. 
+The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that features every category. 
 
 By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to rank them against each other. With this in mind, the composer test will only display the top four ranked composers on the results page.
 
