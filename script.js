@@ -186,43 +186,52 @@ async function displayTracks(leftTrack, rightTrack) {
         console.error(error);
     }
 
-    // **left side**
-
-    const coverLeft = leftTrack.album.cover_big;
-    const titleLeft = leftTrack.title;
-    const previewLeft = leftTrack.preview;
+    // set external redirect links
     deezerLeft = leftTrack.link;
+    deezerRight = rightTrack.link
 
-    let colorLeftOne;
-    let colorLeftTwo;
+    // **left side**
+    displayTrack(leftTrack, 'left');
 
-    ColorThief.getPalette(coverLeft, 5) // extract colors from album cover
+    // **right side**
+    displayTrack(rightTrack, 'right');
+}
+
+function displayTrack(track, side) {
+    const cover = track.album.cover_big;
+    const title = track.title;
+    const preview = track.preview;
+
+    let colorOne;
+    let colorTwo;
+
+    ColorThief.getPalette(cover, 5) // extract colors from album cover
         .then(palette => { 
-            colorLeftOne = palette[0];
-            colorLeftTwo = palette[1];
+            colorOne = palette[0];
+            colorTwo = palette[1];
             
             // style ui components based on extracted colors
-            const leftSideId = document.getElementById('left');
-            leftSideId.style.background = `linear-gradient(206deg, rgb(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}), rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}))`;
+            const sideId = document.getElementById(side);
+            sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
 
-            const leftTitleId = document.getElementById('leftTitle');
-            leftTitleId.style.color = `rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]})`;
+            const titleId = document.getElementById(`${side}Title`);
+            titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            const leftDescriptionId = document.getElementById('leftDescription');
-            leftDescriptionId.style.color = `rgba(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}, 0.8)`;
+            const descriptionId = document.getElementById(`${side}Description`);
+            descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
 
-            const leftButtonId = document.getElementById('leftButton');
-            leftButtonId.style.backgroundColor = `rgba(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}, 0.3)`;
+            const buttonId = document.getElementById(`${side}Button`);
+            buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
 
-            const leftButtonLabelId = document.getElementById('leftButtonLabel');
-            leftButtonLabelId.style.color = `rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]})`;
+            const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
+            buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            leftSideId.addEventListener('mouseenter', function() {
-                leftSideId.style.background = `linear-gradient(206deg, rgba(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}, 0.62), rgba(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+            sideId.addEventListener('mouseenter', function() {
+                sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
             });
 
-            leftSideId.addEventListener('mouseleave', function() {
-                leftSideId.style.background = `linear-gradient(206deg, rgb(${colorLeftOne[0]}, ${colorLeftOne[1]}, ${colorLeftOne[2]}), rgb(${colorLeftTwo[0]}, ${colorLeftTwo[1]}, ${colorLeftTwo[2]}))`;
+            sideId.addEventListener('mouseleave', function() {
+                sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
             });
             
             // create shadow effect
@@ -231,84 +240,22 @@ async function displayTracks(leftTrack, rightTrack) {
                 return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
             }
 
-            leftSideId.style.zIndex = 1;
-            leftSideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorLeftOne)}`;
+            sideId.style.zIndex = 1;
+            sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
 
         })
         .catch(err => { console.log(err) });
 
     // display info
-    const coverLeftId = document.getElementById('leftCover');
-    const titleLeftId = document.getElementById('leftTitle');
-    const descriptionLeftId = document.getElementById('leftDescription');
-    const previewLeftId = document.getElementById('leftPreview');
+    const coverId = document.getElementById(`${side}Cover`);
+    const titleId = document.getElementById(`${side}Title`);
+    const descriptionId = document.getElementById(`${side}Description`);
+    const previewId = document.getElementById(`${side}Preview`);
     
-    coverLeftId.src = coverLeft;
-    titleLeftId.innerHTML = titleLeft
-    descriptionLeftId.innerHTML = ``;
-    previewLeftId.src = previewLeft;
-
-    // **right side**
-
-    const coverRight = rightTrack.album.cover_big;
-    const titleRight = rightTrack.title;
-    const previewRight = rightTrack.preview;
-    deezerRight = rightTrack.link
-
-    let colorRightOne;
-    let colorRightTwo;
-
-    ColorThief.getPalette(coverRight, 5)
-        .then(palette => { 
-            colorRightOne = palette[0];
-            console.log(colorRightOne);
-
-            colorRightTwo = palette[1];
-            console.log(colorRightTwo);
-
-            const rightSideId = document.getElementById('right');
-            rightSideId.style.background = `linear-gradient(206deg, rgb(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}), rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}))`;
-
-            const rightTitleId = document.getElementById('rightTitle');
-            rightTitleId.style.color = `rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]})`;
-
-            const rightDescriptionId = document.getElementById('rightDescription');
-            rightDescriptionId.style.color = `rgba(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}, 0.8)`;
-
-            const rightButtonId = document.getElementById('rightButton');
-            rightButtonId.style.backgroundColor = `rgba(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}, 0.3)`;
-
-            const rightButtonLabelId = document.getElementById('rightButtonLabel');
-            rightButtonLabelId.style.color = `rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]})`;
-
-            rightSideId.addEventListener('mouseenter', function() {
-                rightSideId.style.background = `linear-gradient(206deg, rgba(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}, 0.62), rgba(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
-            });
-
-            rightSideId.addEventListener('mouseleave', function() {
-                rightSideId.style.background = `linear-gradient(206deg, rgb(${colorRightOne[0]}, ${colorRightOne[1]}, ${colorRightOne[2]}), rgb(${colorRightTwo[0]}, ${colorRightTwo[1]}, ${colorRightTwo[2]}))`;
-            });
-
-            function generateShadowColor(rgbColor) {
-                const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
-                return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
-            }
-
-            rightSideId.style.zIndex = 1;
-            rightSideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorRightOne)}`;
-        })
-        .catch(err => { console.log(err) });
-
-    // display info
-    const coverRightId = document.getElementById('rightCover');
-    const titleRightId = document.getElementById('rightTitle');
-    const descriptionRightId = document.getElementById('rightDescription');
-    const previewRightId = document.getElementById('rightPreview');
-    
-    coverRightId.src = coverRight;
-    titleRightId.innerHTML = titleRight;
-    descriptionRightId.innerHTML = ``;
-    previewRightId.src = previewRight;
+    coverId.src = cover;
+    titleId.innerHTML = title
+    descriptionId.innerHTML = ``;
+    previewId.src = preview;
 }
 
 
@@ -342,10 +289,9 @@ let currentRound = 1;
 
 // update elo and probability function: call on side click
 function updateElo(winner, loser) {
-    // calculate expected win probability
     const winnerRating = winner.elo;
     const loserRating = loser.elo;
-    const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
+    const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400)); // calculate the winning category's pre-comparison probability of winning based strictly on the relative elo difference
 
     // update elos
     const winnerEloGained = K * (1 - winProbability);
