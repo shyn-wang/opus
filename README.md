@@ -1,7 +1,7 @@
 # Opus
 
 ## Introduction
-Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are so many possible places to start.
+Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are just so many possible places to start.
 
 _Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
 
@@ -62,37 +62,54 @@ winner rating change = K * (1 - win probability) | loser rating change = -(winne
 
 <br>
 
-_An elo-based system was specifically chosen in place of a conventional point-tally model for its dynamic handling of rating changes and self-correcting nature, both of which power the [probabilistic matchmaking algorithm](#roulette-wheel-selection-system-matchmaking). Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing._
-
-For instance, if a user initially chooses against pieces pertaining to a specific era, but is later shown a work they love matched against a high-ranking opponent, picking the lower-rated era provides it with an <ins>opportunity</ins> (see roulette wheel selection breakdown) to recover in ranking and end the test as one of the user's top-ranked preferences. This prevents outlier pieces from drastically hurting an otherwise favoured category, rewarding overall consistency.
-
 #### Roulette wheel selection system (Matchmaking)
 The roulette wheel selection system is used to apply weighted probabilities (based on relative elo ratings) to the matchmaking process in place of random generation. 
 
 At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when winners are selected. The change in the probabilities of the winning and losing category per round are proportional to the change in elo rating that occurs, divided by a constant value.
 
-In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a single category's probability weight per round.
+_In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a single category's probability weight per round._
 
-In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease in a single category's probability weight per round (increased round count in composer mode calls for more gradual changes in probability).
+_In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease in a single category's probability weight per round (increased round count in composer mode calls for more gradual changes in probability)._
 
-In both modes, relative floors and ceilings are in place to prevent any category from ever being hidden entirely or developing a runaway lead in probability.
+_In both modes, relative floors and ceilings are in place to prevent any category from ever being hidden entirely or developing a runaway lead in probability._
 
 When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the competition pool.
 <br><br>
 
 <img width="2720" height="880" alt="weighted_probability_selection" src="https://github.com/user-attachments/assets/e36a8dda-ee31-4c6a-810b-4544645d4a33" />
-<sub>visual representation of the probability weights as 'slices' in era mode</sub>
+<sub>visual representation of the probability weights as slices (era mode)</sub>
 
 <br><br>
-_Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories are given smaller probability weights, reducing their likelihood of being shown._
+Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories are given smaller probability weights, reducing their likelihood of being shown.
 
-This intentionally exposes users more often to categories they have taken interest in, and stress-tests the leaders by pitting them against a wide range of competing options. Doing so _rewards categories that are consistently rated highly_ and prevents any one category from becoming top-ranked per a fluke, as it will be forced to repeatedly defend its position against lower-rated opponents.
+#### Why take this approach?
 
-With the weighting floor in place, the system also ensures that low-ranking categories are still provided opportunities to appear in matchups and potentially mount comebacks. Any category that wins in an upset against a higher-rated opponent will receive a significant weighting boost proportional to its elo gain, increasing overall visibility and forcing it into more matchups to test if it can defend its position and justify the jump in rating.
+The ultimate purpose of the algorithm is to quickly profile a user's tastes and identify their most preferred eras/composers. To accomplish this, it targets two objectives:
 
-**Note**
+1. Identify and rank categories that users show interest in
+2. Continuously re-evaluate top ranking categories to ensure consistency
 
-The probabilistic matchmaking system is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that includes every category. 
+For ranking, an elo-based system was specifically chosen in place of a conventional point-tally model given its self-correcting nature and ability to quantify the significance of individual user choices. 
+
+These characteristics are especially significant to the function of the probabilistic matchmaking system, which is used to intentionally expose users more frequently to categories they have taken prior interest in. 
+
+The model primarily stress-tests the top ranking categories by pitting them against a wide range of competing options, rewarding only the categories that are consistently rated highly and preventing any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against lower-rated opponents.
+
+In doing so, it simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins one of these matchups in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and force it into subsequent matchups, where it will be provided opportuities to defend its position and justify the rating increase.
+
+Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating one of the most pronounced limitations of the testing methodology itself - grouping unique pieces under one collective category. The issue lies in the very likely possibility that users may not resonate with some specific works of an era/composer, even if they have a strong preference towards that era/composer as a whole. 
+
+For instance, if a user initially chooses against pieces pertaining to a specific era, but is later shown a work they actually love, a world in which it can potentially recover in rating and end the test as a top-ranked preference only exist when using elo-based rankings. As previously explained, the selection of such a piece would likely result in a large rating swing, and thereby provide the era with subsequent opportunities to prove itself.
+
+On the flip end, it is entirely possible for a user to resonate strongly with a specific work, but have adamant opinions regarding the era/composer behind it as a whole. In this case, the category would likely fail to hold up in any subsequent comparisons and quickly drop back down in rating.
+
+Overall, the algorithm works to effectively prevent outlier pieces from exerting an outsized influence the final category rankings, as it only rewards consistent performances while punishing fluke wins.
+
+
+
+#### Note
+
+The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking including every category. 
 
 By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to rank them against each other. With this in mind, the composer test will only display the top four ranked composers on the results page.
 
