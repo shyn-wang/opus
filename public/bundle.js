@@ -1,48 +1,4 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-// class representing a composer/era
-class category {
-    constructor(elo, playlist, playlistID, numOfPlaylistTracks, probability, name) {
-        this.elo = elo;
-        this.playlist = playlist;
-        this.playlistID = playlistID;
-        this.numOfPlaylistTracks = numOfPlaylistTracks;
-        this.probability = probability;
-        this.name = name;
-    }
-}
-
-// create objects for each era
-const baroque = new category(1500, [], '15565783443', 0, 0.25, 'baroque');
-const classical = new category(1500, [], '15565783423', 0, 0.25, 'classical');
-const romantic = new category(1500, [], '15565783383', 0, 0.25, 'romantic');
-const modern = new category(1500, [], '15565783343', 0, 0.25, 'modern');
-
-// create objects for each composer
-const bach = new category(1500, [], '15568732003', 0, 0.125, 'bach');
-const mozart = new category(1500, [], '15568731923', 0, 0.125, 'mozart');
-const beethoven = new category(1500, [], '15568731863', 0, 0.125, 'beethoven');
-const chopin = new category(1500, [], '15568731843', 0, 0.125, 'chopin');
-const liszt = new category(1500, [], '15568731783', 0, 0.125, 'liszt');
-const rachmaninoff = new category(1500, [], '15568731743', 0, 0.125, 'rachmaninoff');
-const scriabin = new category(1500, [], '15568731703', 0, 0.125, 'scriabin');
-const debussy = new category(1500, [], '15568731663', 0, 0.125, 'debussy');
-
-// export objects
-module.exports = {
-    baroque,
-    classical,
-    romantic,
-    modern,
-    bach,
-    mozart,
-    beethoven,
-    chopin,
-    liszt,
-    rachmaninoff,
-    scriabin,
-    debussy
-}
-},{}],2:[function(require,module,exports){
 /*
  * Block below copied from Protovis: http://mbostock.github.com/protovis/
  * Copyright 2010 Stanford Visualization Group
@@ -668,7 +624,7 @@ var quantize = MMCQ.quantize;
 
 module.exports = quantize;
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 const getPixels = require('get-pixels');
 const quantize = require('@lokesh.dhakar/quantize');
 
@@ -769,7 +725,7 @@ module.exports = {
 };
 
 
-},{"@lokesh.dhakar/quantize":2,"get-pixels":8}],4:[function(require,module,exports){
+},{"@lokesh.dhakar/quantize":1,"get-pixels":7}],3:[function(require,module,exports){
 "use strict"
 
 var createThunk = require("./lib/thunk.js")
@@ -880,7 +836,7 @@ function compileCwise(user_args) {
 
 module.exports = compileCwise
 
-},{"./lib/thunk.js":6}],5:[function(require,module,exports){
+},{"./lib/thunk.js":5}],4:[function(require,module,exports){
 "use strict"
 
 var uniq = require("uniq")
@@ -1240,7 +1196,7 @@ function generateCWiseOp(proc, typesig) {
 }
 module.exports = generateCWiseOp
 
-},{"uniq":16}],6:[function(require,module,exports){
+},{"uniq":15}],5:[function(require,module,exports){
 "use strict"
 
 // The function below is called when constructing a cwise function object, and does the following:
@@ -1328,7 +1284,7 @@ function createThunk(proc) {
 
 module.exports = createThunk
 
-},{"./compile.js":5}],7:[function(require,module,exports){
+},{"./compile.js":4}],6:[function(require,module,exports){
 (function (Buffer){(function (){
 
 /**
@@ -1386,7 +1342,7 @@ function dataUriToBuffer (uri) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":20}],8:[function(require,module,exports){
+},{"buffer":20}],7:[function(require,module,exports){
 (function (Buffer,process){(function (){
 'use strict'
 
@@ -1524,7 +1480,7 @@ module.exports = function getPixels(url, type, cb) {
   }
 }
 }).call(this)}).call(this,{"isBuffer":require("../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")},require('_process'))
-},{"../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":24,"_process":26,"data-uri-to-buffer":7,"ndarray":13,"ndarray-pack":11,"omggif":14,"path":25,"through":15}],9:[function(require,module,exports){
+},{"../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":24,"_process":26,"data-uri-to-buffer":6,"ndarray":12,"ndarray-pack":10,"omggif":13,"path":25,"through":14}],8:[function(require,module,exports){
 "use strict"
 
 function iota(n) {
@@ -1536,7 +1492,7 @@ function iota(n) {
 }
 
 module.exports = iota
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -1559,7 +1515,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict"
 
 var ndarray = require("ndarray")
@@ -1582,10 +1538,10 @@ module.exports = function convert(arr, result) {
   return result
 }
 
-},{"./doConvert.js":12,"ndarray":13}],12:[function(require,module,exports){
+},{"./doConvert.js":11,"ndarray":12}],11:[function(require,module,exports){
 module.exports=require('cwise-compiler')({"args":["array","scalar","index"],"pre":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"body":{"body":"{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}","args":[{"name":"_inline_1_arg0_","lvalue":true,"rvalue":false,"count":1},{"name":"_inline_1_arg1_","lvalue":false,"rvalue":true,"count":1},{"name":"_inline_1_arg2_","lvalue":false,"rvalue":true,"count":4}],"thisVars":[],"localVars":["_inline_1_i","_inline_1_v"]},"post":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"funcName":"convert","blockSize":64})
 
-},{"cwise-compiler":4}],13:[function(require,module,exports){
+},{"cwise-compiler":3}],12:[function(require,module,exports){
 var iota = require("iota-array")
 var isBuffer = require("is-buffer")
 
@@ -1936,7 +1892,7 @@ function wrappedNDArrayCtor(data, shape, stride, offset) {
 
 module.exports = wrappedNDArrayCtor
 
-},{"iota-array":9,"is-buffer":10}],14:[function(require,module,exports){
+},{"iota-array":8,"is-buffer":9}],13:[function(require,module,exports){
 // (c) Dean McNamee <dean@gmail.com>, 2013.
 //
 // https://github.com/deanm/omggif
@@ -2745,7 +2701,7 @@ function GifReaderLZWOutputIndexStream(code_stream, p, output, output_length) {
 // CommonJS.
 try { exports.GifWriter = GifWriter; exports.GifReader = GifReader } catch(e) {}
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process){(function (){
 var Stream = require('stream')
 
@@ -2857,7 +2813,7 @@ function through (write, end, opts) {
 
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":26,"stream":28}],16:[function(require,module,exports){
+},{"_process":26,"stream":28}],15:[function(require,module,exports){
 "use strict"
 
 function unique_pred(list, compare) {
@@ -2916,6 +2872,50 @@ function unique(list, compare, sorted) {
 
 module.exports = unique
 
+},{}],16:[function(require,module,exports){
+// class representing a composer/era
+class category {
+    constructor(elo, playlist, playlistID, numOfPlaylistTracks, probability, name) {
+        this.elo = elo;
+        this.playlist = playlist;
+        this.playlistID = playlistID;
+        this.numOfPlaylistTracks = numOfPlaylistTracks;
+        this.probability = probability;
+        this.name = name;
+    }
+}
+
+// create objects for each era
+const baroque = new category(1500, [], '15565783443', 0, 0.25, 'baroque');
+const classical = new category(1500, [], '15565783423', 0, 0.25, 'classical');
+const romantic = new category(1500, [], '15565783383', 0, 0.25, 'romantic');
+const modern = new category(1500, [], '15565783343', 0, 0.25, 'modern');
+
+// create objects for each composer
+const bach = new category(1500, [], '15568732003', 0, 0.125, 'bach');
+const mozart = new category(1500, [], '15568731923', 0, 0.125, 'mozart');
+const beethoven = new category(1500, [], '15568731863', 0, 0.125, 'beethoven');
+const chopin = new category(1500, [], '15568731843', 0, 0.125, 'chopin');
+const liszt = new category(1500, [], '15568731783', 0, 0.125, 'liszt');
+const rachmaninoff = new category(1500, [], '15568731743', 0, 0.125, 'rachmaninoff');
+const scriabin = new category(1500, [], '15568731703', 0, 0.125, 'scriabin');
+const debussy = new category(1500, [], '15568731663', 0, 0.125, 'debussy');
+
+// export objects
+module.exports = {
+    baroque,
+    classical,
+    romantic,
+    modern,
+    bach,
+    mozart,
+    beethoven,
+    chopin,
+    liszt,
+    rachmaninoff,
+    scriabin,
+    debussy
+}
 },{}],17:[function(require,module,exports){
 // import library file
 const library = require('./library');
@@ -3306,7 +3306,7 @@ window.leftBtn = leftBtn;
 window.rightBtn = rightBtn;
 window.displayTracks = displayTracks;
 window.displayResults = displayResults;
-},{"./library":1,"colorthief":3}],18:[function(require,module,exports){
+},{"./library":16,"colorthief":2}],18:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -5857,8 +5857,8 @@ if (typeof Object.create === 'function') {
 }
 
 },{}],24:[function(require,module,exports){
-arguments[4][10][0].apply(exports,arguments)
-},{"dup":10}],25:[function(require,module,exports){
+arguments[4][9][0].apply(exports,arguments)
+},{"dup":9}],25:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
