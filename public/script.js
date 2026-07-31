@@ -1,7 +1,21 @@
 // import library file
-import { baroque, classical, romantic, modern, bach, mozart, beethoven, chopin, liszt, rachmaninoff, scriabin, debussy } from './library.js';
+import { 
+    baroque, 
+    classical, 
+    romantic, 
+    modern, 
+    bach, 
+    mozart, 
+    beethoven, 
+    chopin, 
+    liszt, 
+    rachmaninoff, 
+    scriabin, 
+    debussy } 
+    
+from './library.js';
 
-// import eras & composers
+// set eras & composers
 const eras = [
     baroque,
     classical,

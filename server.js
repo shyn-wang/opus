@@ -37,7 +37,7 @@ app.get('/api/track/:id', async (req, res) => {
         // retrieve preview link & extract album cover color palette
         const preview = response.preview;
 
-        const albumCover = response.album.cover_big;
+        const albumCover = response.album.cover_small;
         const palette = await ColorThief.getPalette(albumCover, 5);
 
         // return preview & palette to frontend
