@@ -84,7 +84,7 @@ Under this model, higher rated categories are awarded with larger probability we
 
 #### Why take this approach?
 
-The ultimate purpose of the algorithm is to quickly profile a user's tastes and identify their most preferred eras/composers. To accomplish this, it prioritizes two objectives:
+The ultimate goal of the algorithm is to quickly profile a user's tastes and identify their most preferred eras/composers. To accomplish this, it prioritizes two objectives:
 
 1. Identify and rank categories that users show interest in
 2. Continuously re-evaluate top ranking categories to ensure consistency

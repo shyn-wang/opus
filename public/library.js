@@ -27,7 +27,7 @@ const scriabin = new category(1500, [], '15568731703', 0, 0.125, 'scriabin');
 const debussy = new category(1500, [], '15568731663', 0, 0.125, 'debussy');
 
 // export objects
-module.exports = {
+export {
     baroque,
     classical,
     romantic,

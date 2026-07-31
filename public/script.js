@@ -1,26 +1,37 @@
 // import library file
-const library = require('./library');
+import { 
+    baroque, 
+    classical, 
+    romantic, 
+    modern, 
+    bach, 
+    mozart, 
+    beethoven, 
+    chopin, 
+    liszt, 
+    rachmaninoff, 
+    scriabin, 
+    debussy } 
+    
+from './library.js';
 
-// set up color thief
-const ColorThief = require('colorthief');
-
-// import eras & composers
+// set eras & composers
 const eras = [
-    library.baroque,
-    library.classical,
-    library.romantic,
-    library.modern
+    baroque,
+    classical,
+    romantic,
+    modern
 ];
 
 const composers = [
-    library.bach,
-    library.mozart,
-    library.beethoven,
-    library.chopin,
-    library.liszt,
-    library.rachmaninoff,
-    library.scriabin,
-    library.debussy
+    bach,
+    mozart,
+    beethoven,
+    chopin,
+    liszt,
+    rachmaninoff,
+    scriabin,
+    debussy
 ];
 
 let whichMode; // era or composer mode
@@ -41,31 +52,6 @@ let initialMatchups;
 let leftCategory;
 let rightCategory;
 
-
-// Helper function to bypass CORS without using a proxy -> TEMPORARY - remove once backend is built
-function fetchDeezerJSONP(url) {
-    return new Promise((resolve, reject) => {
-        // Create a unique callback function name
-        const callbackName = 'deezer_cb_' + Date.now() + Math.floor(Math.random() * 1000);
-        
-        // Define the global callback function
-        window[callbackName] = function(data) {
-            delete window[callbackName]; // Cleanup
-            document.body.removeChild(script); // Cleanup
-            resolve(data);
-        };
-
-        // Create the script tag
-        const script = document.createElement('script');
-        const sep = url.includes('?') ? '&' : '?';
-        // Tell Deezer to return JSONP and trigger our callback
-        script.src = `${url}${sep}output=jsonp&callback=${callbackName}`;
-        script.onerror = reject;
-        
-        // Append to DOM to trigger the request
-        document.body.appendChild(script);
-    });
-}
 
 // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
 async function initializePlaylists(mode) {
@@ -93,13 +79,14 @@ async function initializePlaylists(mode) {
     shuffleArray(initialMatchups); // generate order of initial matchups
 
     for (const category of categories) {
-        const url = `https://api.deezer.com/playlist/${category.playlistID}/tracks`;
+        const url = `http://localhost:3000/api/playlist/${category.playlistID}`;
 
         try {
-            const response = await fetchDeezerJSONP(url);
+            const response = await (await fetch(url)).json();
 
             category.playlist = response.data; // 'response.data' returns array of tracks
             category.numOfPlaylistTracks = response.total;
+
             console.log(category);
 
         } catch (error) {
@@ -171,16 +158,25 @@ function getRandomTrack(leftCategory, rightCategory) {
 
 // intakes objects containing track info
 async function displayTracks(leftTrack, rightTrack) {
-    // fetch new preview links (currently saved ones may have expired)
-    const leftTrackURL = `https://api.deezer.com/track/${leftTrack.id}`;
-    const rightTrackURL = `https://api.deezer.com/track/${rightTrack.id}`;
+    // fetch new preview links (currently saved ones may have expired) & extract color palette info
+    const leftTrackURL = `http://localhost:3000/api/track/${leftTrack.id}`;
+    const rightTrackURL = `http://localhost:3000/api/track/${rightTrack.id}`;
+
+    let paletteLeft;
+    let paletteRight;
 
     try {
-        const responseLeft = await fetchDeezerJSONP(leftTrackURL);
-        const responseRight = await fetchDeezerJSONP(rightTrackURL);
+        const responseLeft = await (await fetch(leftTrackURL)).json();
+        const responseRight = await (await fetch(rightTrackURL)).json();
+
+        console.log(responseLeft);
+        console.log(responseRight);
 
         leftTrack.preview = responseLeft.preview; // update links
         rightTrack.preview = responseRight.preview;
+
+        paletteLeft = responseLeft.palette;
+        paletteRight = responseRight.palette;
 
     } catch (error) {
         console.error(error);
@@ -191,65 +187,55 @@ async function displayTracks(leftTrack, rightTrack) {
     deezerRight = rightTrack.link
 
     // **left side**
-    displayTrack(leftTrack, 'left');
+    displayTrack(leftTrack, 'left', paletteLeft);
 
     // **right side**
-    displayTrack(rightTrack, 'right');
+    displayTrack(rightTrack, 'right', paletteRight);
 }
 
-function displayTrack(track, side) {
+function displayTrack(track, side, palette) {
     const cover = track.album.cover_big;
     const title = track.title;
     const preview = track.preview;
 
-    let colorOne;
-    let colorTwo;
+    const colorOne = palette[0];
+    const colorTwo = palette[1];
+    
+    // style ui components based on extracted colors
+    const sideId = document.getElementById(side);
+    sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
 
-    ColorThief.getPalette(cover, 5) // extract colors from album cover
-        .then(palette => { 
-            colorOne = palette[0];
-            colorTwo = palette[1];
-            
-            // style ui components based on extracted colors
-            const sideId = document.getElementById(side);
-            sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
+    const titleId = document.getElementById(`${side}Title`);
+    titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            const titleId = document.getElementById(`${side}Title`);
-            titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
+    const descriptionId = document.getElementById(`${side}Description`);
+    descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
 
-            const descriptionId = document.getElementById(`${side}Description`);
-            descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
+    const buttonId = document.getElementById(`${side}Button`);
+    buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
 
-            const buttonId = document.getElementById(`${side}Button`);
-            buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
+    const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
+    buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
-            buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
+    sideId.addEventListener('mouseenter', function() {
+        sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+    });
 
-            sideId.addEventListener('mouseenter', function() {
-                sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
-            });
+    sideId.addEventListener('mouseleave', function() {
+        sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
+    });
+    
+    // create shadow effect
+    function generateShadowColor(rgbColor) {
+        const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
+        return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
+    }
 
-            sideId.addEventListener('mouseleave', function() {
-                sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
-            });
-            
-            // create shadow effect
-            function generateShadowColor(rgbColor) {
-                const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
-                return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
-            }
-
-            sideId.style.zIndex = 1;
-            sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
-
-        })
-        .catch(err => { console.log(err) });
+    sideId.style.zIndex = 1;
+    sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
 
     // display info
     const coverId = document.getElementById(`${side}Cover`);
-    const titleId = document.getElementById(`${side}Title`);
-    const descriptionId = document.getElementById(`${side}Description`);
     const previewId = document.getElementById(`${side}Preview`);
     
     coverId.src = cover;
