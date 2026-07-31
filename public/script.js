@@ -1,9 +1,6 @@
 // import library file
 const library = require('./library');
 
-// set up color thief
-const ColorThief = require('colorthief');
-
 // import eras & composers
 const eras = [
     library.baroque,
@@ -147,16 +144,25 @@ function getRandomTrack(leftCategory, rightCategory) {
 
 // intakes objects containing track info
 async function displayTracks(leftTrack, rightTrack) {
-    // fetch new preview links (currently saved ones may have expired)
+    // fetch new preview links (currently saved ones may have expired) & extract color palette info
     const leftTrackURL = `http://localhost:3000/api/track/${leftTrack.id}`;
     const rightTrackURL = `http://localhost:3000/api/track/${rightTrack.id}`;
+
+    let paletteLeft;
+    let paletteRight;
 
     try {
         const responseLeft = await (await fetch(leftTrackURL)).json();
         const responseRight = await (await fetch(rightTrackURL)).json();
 
+        console.log(responseLeft);
+        console.log(responseRight);
+
         leftTrack.preview = responseLeft.preview; // update links
         rightTrack.preview = responseRight.preview;
+
+        paletteLeft = responseLeft.palette;
+        paletteRight = responseRight.palette;
 
     } catch (error) {
         console.error(error);
@@ -167,65 +173,55 @@ async function displayTracks(leftTrack, rightTrack) {
     deezerRight = rightTrack.link
 
     // **left side**
-    displayTrack(leftTrack, 'left');
+    displayTrack(leftTrack, 'left', paletteLeft);
 
     // **right side**
-    displayTrack(rightTrack, 'right');
+    displayTrack(rightTrack, 'right', paletteRight);
 }
 
-function displayTrack(track, side) {
+function displayTrack(track, side, palette) {
     const cover = track.album.cover_big;
     const title = track.title;
     const preview = track.preview;
 
-    let colorOne;
-    let colorTwo;
+    const colorOne = palette[0];
+    const colorTwo = palette[1];
+    
+    // style ui components based on extracted colors
+    const sideId = document.getElementById(side);
+    sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
 
-    ColorThief.getPalette(cover, 5) // extract colors from album cover
-        .then(palette => { 
-            colorOne = palette[0];
-            colorTwo = palette[1];
-            
-            // style ui components based on extracted colors
-            const sideId = document.getElementById(side);
-            sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
+    const titleId = document.getElementById(`${side}Title`);
+    titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            const titleId = document.getElementById(`${side}Title`);
-            titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
+    const descriptionId = document.getElementById(`${side}Description`);
+    descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
 
-            const descriptionId = document.getElementById(`${side}Description`);
-            descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
+    const buttonId = document.getElementById(`${side}Button`);
+    buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
 
-            const buttonId = document.getElementById(`${side}Button`);
-            buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
+    const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
+    buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
 
-            const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
-            buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
+    sideId.addEventListener('mouseenter', function() {
+        sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+    });
 
-            sideId.addEventListener('mouseenter', function() {
-                sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
-            });
+    sideId.addEventListener('mouseleave', function() {
+        sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
+    });
+    
+    // create shadow effect
+    function generateShadowColor(rgbColor) {
+        const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
+        return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
+    }
 
-            sideId.addEventListener('mouseleave', function() {
-                sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
-            });
-            
-            // create shadow effect
-            function generateShadowColor(rgbColor) {
-                const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
-                return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
-            }
-
-            sideId.style.zIndex = 1;
-            sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
-
-        })
-        .catch(err => { console.log(err) });
+    sideId.style.zIndex = 1;
+    sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
 
     // display info
     const coverId = document.getElementById(`${side}Cover`);
-    const titleId = document.getElementById(`${side}Title`);
-    const descriptionId = document.getElementById(`${side}Description`);
     const previewId = document.getElementById(`${side}Preview`);
     
     coverId.src = cover;

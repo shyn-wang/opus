@@ -1,9 +1,10 @@
-const e = require('express');
 const express = require('express');
 
 const app = express();
 
 const PORT = 3000;
+
+const ColorThief = require('colorthief');
 
 // serve frontend files
 app.use(express.static('public'));
@@ -32,7 +33,20 @@ app.get('/api/track/:id', async (req, res) => {
         const url = `https://api.deezer.com/track/${req.params.id}`;
 
         const response = await (await fetch(url)).json();
-        res.send(response);
+
+        // retrieve preview link & extract album cover color palette
+        const preview = response.preview;
+
+        const albumCover = response.album.cover_big;
+        const palette = await ColorThief.getPalette(albumCover, 5);
+
+        // return preview & palette to frontend
+        const data = {
+            'preview': preview,
+            'palette': palette
+        };
+
+        res.json(data); // send response as json
 
     } catch (error) {
         console.log(error);
