@@ -79,7 +79,7 @@ async function initializePlaylists(mode) {
     shuffleArray(initialMatchups); // generate order of initial matchups
 
     for (const category of categories) {
-        const url = `http://localhost:3000/api/playlist/${category.playlistID}`;
+        const url = `/api/playlist/${category.playlistID}`;
 
         try {
             const response = await (await fetch(url)).json();
@@ -159,8 +159,8 @@ function getRandomTrack(leftCategory, rightCategory) {
 // intakes objects containing track info
 async function displayTracks(leftTrack, rightTrack) {
     // fetch new preview links (currently saved ones may have expired) & extract color palette info
-    const leftTrackURL = `http://localhost:3000/api/track/${leftTrack.id}`;
-    const rightTrackURL = `http://localhost:3000/api/track/${rightTrack.id}`;
+    const leftTrackURL = `/api/track/${leftTrack.id}`;
+    const rightTrackURL = `/api/track/${rightTrack.id}`;
 
     let paletteLeft;
     let paletteRight;
