@@ -2961,31 +2961,6 @@ let leftCategory;
 let rightCategory;
 
 
-// Helper function to bypass CORS without using a proxy -> TEMPORARY - remove once backend is built
-function fetchDeezerJSONP(url) {
-    return new Promise((resolve, reject) => {
-        // Create a unique callback function name
-        const callbackName = 'deezer_cb_' + Date.now() + Math.floor(Math.random() * 1000);
-        
-        // Define the global callback function
-        window[callbackName] = function(data) {
-            delete window[callbackName]; // Cleanup
-            document.body.removeChild(script); // Cleanup
-            resolve(data);
-        };
-
-        // Create the script tag
-        const script = document.createElement('script');
-        const sep = url.includes('?') ? '&' : '?';
-        // Tell Deezer to return JSONP and trigger our callback
-        script.src = `${url}${sep}output=jsonp&callback=${callbackName}`;
-        script.onerror = reject;
-        
-        // Append to DOM to trigger the request
-        document.body.appendChild(script);
-    });
-}
-
 // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
 async function initializePlaylists(mode) {
     // check mode
@@ -3012,13 +2987,14 @@ async function initializePlaylists(mode) {
     shuffleArray(initialMatchups); // generate order of initial matchups
 
     for (const category of categories) {
-        const url = `https://api.deezer.com/playlist/${category.playlistID}/tracks`;
+        const url = `http://localhost:3000/api/playlist/${category.playlistID}`;
 
         try {
-            const response = await fetchDeezerJSONP(url);
+            const response = await (await fetch(url)).json();
 
             category.playlist = response.data; // 'response.data' returns array of tracks
             category.numOfPlaylistTracks = response.total;
+
             console.log(category);
 
         } catch (error) {
@@ -3091,12 +3067,12 @@ function getRandomTrack(leftCategory, rightCategory) {
 // intakes objects containing track info
 async function displayTracks(leftTrack, rightTrack) {
     // fetch new preview links (currently saved ones may have expired)
-    const leftTrackURL = `https://api.deezer.com/track/${leftTrack.id}`;
-    const rightTrackURL = `https://api.deezer.com/track/${rightTrack.id}`;
+    const leftTrackURL = `http://localhost:3000/api/track/${leftTrack.id}`;
+    const rightTrackURL = `http://localhost:3000/api/track/${rightTrack.id}`;
 
     try {
-        const responseLeft = await fetchDeezerJSONP(leftTrackURL);
-        const responseRight = await fetchDeezerJSONP(rightTrackURL);
+        const responseLeft = await (await fetch(leftTrackURL)).json();
+        const responseRight = await (await fetch(rightTrackURL)).json();
 
         leftTrack.preview = responseLeft.preview; // update links
         rightTrack.preview = responseRight.preview;
