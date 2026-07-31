@@ -1,23 +1,23 @@
 // import library file
-const library = require('./library');
+import { baroque, classical, romantic, modern, bach, mozart, beethoven, chopin, liszt, rachmaninoff, scriabin, debussy } from './library.js';
 
 // import eras & composers
 const eras = [
-    library.baroque,
-    library.classical,
-    library.romantic,
-    library.modern
+    baroque,
+    classical,
+    romantic,
+    modern
 ];
 
 const composers = [
-    library.bach,
-    library.mozart,
-    library.beethoven,
-    library.chopin,
-    library.liszt,
-    library.rachmaninoff,
-    library.scriabin,
-    library.debussy
+    bach,
+    mozart,
+    beethoven,
+    chopin,
+    liszt,
+    rachmaninoff,
+    scriabin,
+    debussy
 ];
 
 let whichMode; // era or composer mode
