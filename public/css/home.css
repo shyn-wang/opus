@@ -240,3 +240,14 @@ nav {
                 0 0 60px #ffffffab,
                 0 0 150px #ffffffab;
   }
+
+  #modeSelectorScreen {
+    display: none;
+  }
+
+  .container {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+  }

@@ -53,8 +53,31 @@ let leftCategory;
 let rightCategory;
 
 
+function modeSelector() { // runs when start btn is clicked on landing page
+    const parent = document.getElementById("parent");
+
+    const oldDiv = document.getElementById("startScreen");
+    const newDiv = document.getElementById("modeSelectorScreen");
+
+    parent.replaceChild(newDiv, oldDiv); // swap start title/btn with mode selector
+    newDiv.style.display = "block"; // show div -> initially hidden
+
+    const btns = document.getElementsByClassName("ButtonEnter");
+    for (let btn of btns) {
+        btn.style.width = "200px"; // increase btn sizes (to fit 'composer')
+    }
+}
+
+function startTest(mode) { // runs when a mode is selected
+    sessionStorage.setItem('mode', mode); // save mode
+    window.location.href = "stage.html";
+}
+
+
 // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
-async function initializePlaylists(mode) {
+async function initializePlaylists() {
+    const mode = sessionStorage.getItem('mode');
+
     // check mode
     if (mode === 'eras') {
         whichMode = 'eras';
@@ -74,6 +97,8 @@ async function initializePlaylists(mode) {
         probabilityCeil = 0.35;
         probabilityFloor = 0.07;
     }
+
+    updateCurrentRound(); // update to show totalRounds
 
     initialMatchups = categories.slice(); // make copy of categories array so changes are not shared
     shuffleArray(initialMatchups); // generate order of initial matchups
@@ -365,6 +390,8 @@ function shuffleArray(array) {
 }
 
 // enable functions to be accessed globally
+window.modeSelector = modeSelector;
+window.startTest = startTest;
 window.initializePlaylists = initializePlaylists;
 window.updateCurrentRound = updateCurrentRound;
 window.leftClick = leftClick;
