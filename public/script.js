@@ -338,12 +338,14 @@ function updateElo(winner, loser) {
             }
         }
 
-        categories.sort(sortOrder('elo'));
+        categories.sort(sortOrder('elo')); // sort categories by order of rating
 
         const categoriesSerialized = JSON.stringify(categories);
+        sessionStorage.setItem('results', categoriesSerialized); // save array of categories as json
 
-        sessionStorage.setItem('results', categoriesSerialized);
-        window.location.href = 'results.html';
+        sessionStorage.setItem('mode', whichMode); // save mode
+
+        window.location.href = 'results.html'; // display results
 
     } else {
         selectMatchups();
@@ -363,7 +365,17 @@ function displayResults() {
     const results = JSON.parse(categoriesStored);
     console.log(results);
 
+    const mode = sessionStorage.getItem('mode');
+
     // display results
+    const main = document.getElementById('main');
+    main.style.gap = '50px';
+
+    const title = document.getElementById('title');
+    title.style.width = '1200px';
+    title.innerHTML = `Your favourite ${mode} are`;
+
+    // get top category names
     const first = results[0].name;
     const second = results[1].name;
     const third = results[2].name;

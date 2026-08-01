@@ -15,7 +15,7 @@ html, body {
     height: 100%;
 }
 
-.main {
+#main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -173,6 +173,7 @@ nav {
     font-weight: 1600;
     color: #243B53;
     font-family: 'circular';
+    text-decoration: none;
 }
 
 .navLinks {
@@ -251,3 +252,19 @@ nav {
     justify-content: center;
     align-items: center;
   }
+
+  #results {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    justify-content: center;
+    font-family: 'font';
+    font-size: 40px;
+    color: #243b53b7;
+    z-index: 2;
+  }
+
+  #results h3, #results h5 {
+    margin: 0;
+    line-height: 1.1;
+}

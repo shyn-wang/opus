@@ -13,7 +13,7 @@
                 <img src="" alt="" width = '260' height = '260' class="albumCover" id="leftCover">
                 <h1 class="trackTitle" id="leftTitle"></h1>
                 <h3 class="description" id="leftDescription">Performer, Composer</h3>
-                <audio src="" controls id="leftPreview"></audio>
+                <audio src="" controls id="leftPreview" onclick="event.stopPropagation()"></audio>
                 <button type="button" class="container" id="leftButton" onclick="leftBtn(event)">
                     <div class = "externalPlayerBtn">
                         <img src="images/deezerLogo.png" alt="" class="img">
@@ -32,7 +32,7 @@
                 <img src="" alt="" width = '260' height = '260' class="albumCover" id="rightCover">
                 <h1 class="trackTitle" id="rightTitle"></h1>
                 <h3 class="description" id="rightDescription">Performer, Composer</h3>
-                <audio src="" controls id="rightPreview"></audio>
+                <audio src="" controls id="rightPreview" onclick="event.stopPropagation()"></audio>
                 <button type="button" class="container" id="rightButton" onclick="rightBtn(event)">
                     <div class = "externalPlayerBtn">
                         <img src="images/deezerLogo.png" alt="" class="img">

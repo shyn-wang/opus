@@ -3,28 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="css/results.css"/>
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
     <title>Opus</title>
 </head>
 <body onload="displayResults()">
-    <div class="container" id="test">
-        <h1 id="title">your results are in</h1>
-    </div>
-    <div class = 'info'>
-        <div class = "container" id = "results">
-            <h2>top eras</h2>
+    <nav>
+        <div class="navBar">
+            <div class="logo">
+                <a href="index.html" class="logoText">Opus</a>
+            </div>
+            <div class="links">
+                <a href="https://github.com/shyn-wang/opus" target="_blank">
+                    <button class="githubBtn">
+                        <img src="images/githubLogo.png" width="32" height="32">
+                    </button>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section id="main">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+        <h2 id="title">Your favourite ___s are...</h2>
+        <div id ="results">
             <h3 id="first"></h3>
             <h5 id="second"></h5>
             <h5 id="third"></h5>
             <h5 id="fourth"></h5>
         </div>
-        <div class = 'container' id = 'recommendedComposers'>
-            <h2>recommended <br> composers</h2>
-            <h4 id="composerOne">test</h4>
-            <h4 id="composerTwo">test</h4>
-            <h4 id="composerThree">test</h4>
-        </div>
-    </div>
+    </section>
     <script type="module" src="script.js"></script>
 </body>
 </html>

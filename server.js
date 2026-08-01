@@ -18,7 +18,7 @@ app.listen(PORT, () => {
 
 app.get('/api/playlist/:id', async (req, res) => {
     try {
-        const url = `https://api.deezer.com/playlist/${req.params.id}/tracks`;
+        const url = `https://api.deezer.com/playlist/${req.params.id}/tracks?limit=100`;
 
         const response = await (await fetch(url)).json();
         res.send(response);
