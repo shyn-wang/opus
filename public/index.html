@@ -7,19 +7,28 @@
     <link rel="stylesheet" type="text/css" href="css/home.css"/>
 </head>
 <body>
-    <div class="mainMenu">
-        <div class="container" id="test">
-            <h1 id="title">opus</h1>
+    <nav>
+        <div class="navBar">
+            <div class="logo">
+                <span class="logoText">Opus</span>
+            </div>
+            <div class="links">
+                <a href="https://github.com/shyn-wang/opus" target="_blank">
+                    <button class="githubBtn">
+                        <img src="images/githubLogo.png" width="32" height="32">
+                    </button>
+                </a>
+            </div>
         </div>
-        <div class = "container" id="description">
-            <h3>Elo-based classical piano recommender</h3>
-        </div>
-        <div class = "container" id="test2">
-            <button type = "button" class = "ButtonEnter" onclick="window.location.href='stage.html'">
-                start
-            </button>
-        </div>
-    </div>
+    </nav>
+    <section class="main">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+        <h2 id="title">Discover your taste in Classical Piano</h1>
+        <button type = "button" class = "ButtonEnter" onclick="window.location.href='stage.html'">Start</button>
+    </section>
     <script type="module" src="script.js"></script>
 </body>
 </html>
