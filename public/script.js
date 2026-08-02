@@ -1,56 +1,34 @@
 // import library file
-import { 
-    baroque, 
-    classical, 
-    romantic, 
-    modern, 
-    bach, 
-    mozart, 
-    beethoven, 
-    chopin, 
-    liszt, 
-    rachmaninoff, 
-    scriabin, 
-    debussy } 
-    
-from './library.js';
+import { eras, composers } from './library.js';
 
-// set eras & composers
-const eras = [
-    baroque,
-    classical,
-    romantic,
-    modern
-];
+const testManager = {
+    mode: null,
 
-const composers = [
-    bach,
-    mozart,
-    beethoven,
-    chopin,
-    liszt,
-    rachmaninoff,
-    scriabin,
-    debussy
-];
+    categories: [],
 
-let whichMode; // era or composer mode
-let categories; // assigned to eras or composers depending on whichMode
-let totalRounds;
+    onInitialMatchups: true,
+    initialMatchupsRemaining: [],
 
-// matchmaking algorithm settings - based on mode
-const K = 40;
-let probabilityDivisor;
-let probabilityCeil;
-let probabilityFloor;
+    currentMatchup: {
+        leftCategory: null,
+        rightCategory: null,
 
-// true when less than two (eras) or four (composers) matchups have occured
-let onInitialMatchups = true;
-let initialMatchups;
+        leftTrack: null,
+        rightTrack: null
+    },
 
-// tracks the categories on screen
-let leftCategory;
-let rightCategory;
+    rounds: {
+        total: 0,
+        current: 0
+    },
+
+    // matchmaking algorithm settings
+    settings: {
+        probabilityDivisor: 0,
+        probabilityCeil: 0,
+        probabilityFloor: 0,
+    }
+};
 
 
 function modeSelector() { // runs when start btn is clicked on landing page
@@ -63,7 +41,7 @@ function modeSelector() { // runs when start btn is clicked on landing page
     newDiv.style.display = "block"; // show div -> initially hidden
 
     const btns = document.getElementsByClassName("ButtonEnter");
-    for (let btn of btns) {
+    for (const btn of btns) {
         btn.style.width = "200px"; // increase btn sizes (to fit 'composer')
     }
 }
@@ -74,36 +52,37 @@ function startTest(mode) { // runs when a mode is selected
 }
 
 
-// set the playlist property in each object to an array containing all the tracks in the playlist on deezer
-async function initializePlaylists() {
-    const mode = sessionStorage.getItem('mode');
+async function initializeTest() {
+    testManager.mode = sessionStorage.getItem('mode');
 
-    // check mode
-    if (mode === 'eras') {
-        whichMode = 'eras';
-        categories = eras.slice();
+    // config settings based on mode
+    if (testManager.mode === 'eras') {
+        testManager.categories = eras.slice();
 
-        totalRounds = 15;
-        probabilityDivisor = 400;
-        probabilityCeil = 0.55;
-        probabilityFloor = 0.12;
+        testManager.rounds.total = 15;
 
-    } else if (mode === 'composers') {
-        whichMode = 'composers';
-        categories = composers.slice();
+        testManager.settings.probabilityDivisor = 400;
+        testManager.settings.probabilityCeil = 0.55;
+        testManager.settings.probabilityFloor = 0.12;
 
-        totalRounds = 30;
-        probabilityDivisor = 600;
-        probabilityCeil = 0.35;
-        probabilityFloor = 0.07;
+    } else if (testManager.mode === 'composers') {
+        testManager.categories = composers.slice();
+
+        testManager.rounds.total = 30;
+
+        testManager.settings.probabilityDivisor = 600;
+        testManager.settings.probabilityCeil = 0.35;
+        testManager.settings.probabilityFloor = 0.07;
     }
 
     updateCurrentRound(); // update to show totalRounds
 
-    initialMatchups = categories.slice(); // make copy of categories array so changes are not shared
-    shuffleArray(initialMatchups); // generate order of initial matchups
+    testManager.initialMatchupsRemaining = testManager.categories.slice(); // make copy of categories array so changes are not shared
 
-    for (const category of categories) {
+    shuffleArray(testManager.initialMatchupsRemaining); // generate order of initial matchups
+
+    // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
+    for (const category of testManager.categories) {
         const url = `/api/playlist/${category.playlistID}`;
 
         try {
@@ -119,26 +98,26 @@ async function initializePlaylists() {
         }
     }
 
-    selectMatchups();
+    selectMatchups(); // prepare first matchup
 }
 
 function selectMatchups() {
-    if (onInitialMatchups) { // select initial matchups randomly
-        leftCategory = initialMatchups[0];
-        rightCategory = initialMatchups[1];
+    if (testManager.onInitialMatchups) { // select initial matchups randomly
+        testManager.currentMatchup.leftCategory = testManager.initialMatchupsRemaining[0];
+        testManager.currentMatchup.rightCategory = testManager.initialMatchupsRemaining[1];
 
-        initialMatchups.splice(0, 2); // remove eras/composers used in current comparison -> remaining eras/composers participate in further comparisons
+        testManager.initialMatchupsRemaining.splice(0, 2); // remove eras/composers used in current comparison -> remaining eras/composers participate in further comparisons
         
-        if (initialMatchups.length === 0) {
-            onInitialMatchups = false; // all starting pairs of comparisons are made
+        if (testManager.initialMatchupsRemaining.length === 0) {
+            testManager.onInitialMatchups = false; // all starting pairs of comparisons are made
         }
         
     } else { // select matchups based on probabilities
-        leftCategory = selectRandomWithProbability(categories);
-        rightCategory = selectRandomWithProbability(categories.filter(category => category !== leftCategory)); // remove left side selected category from sample pool for right side
+        testManager.currentMatchup.leftCategory = selectRandomWithProbability(testManager.categories);
+        testManager.currentMatchup.rightCategory = selectRandomWithProbability(testManager.categories.filter(category => category !== testManager.currentMatchup.leftCategory)); // remove left side selected category from sample pool for right side
     }
 
-    getRandomTrack(leftCategory, rightCategory);
+    getRandomTrack(testManager.currentMatchup.leftCategory, testManager.currentMatchup.rightCategory);
 }
 
 // select post-initial matchups using a roulette wheel selection system
@@ -172,13 +151,13 @@ function getRandomTrack(leftCategory, rightCategory) {
     const leftTrackIndex = Math.floor(Math.random() * (rangeLeft + 1));
     const rightTrackIndex = Math.floor(Math.random() * (rangeRight + 1));
 
-    const leftTrack = leftCategory.playlist[leftTrackIndex];
+    testManager.currentMatchup.leftTrack = leftCategory.playlist[leftTrackIndex];
     leftCategory.playlist.splice(leftTrackIndex, 1); // remove used track from playlist
 
-    const rightTrack = rightCategory.playlist[rightTrackIndex];
+    testManager.currentMatchup.rightTrack = rightCategory.playlist[rightTrackIndex];
     rightCategory.playlist.splice(rightTrackIndex, 1);
 
-    displayTracks(leftTrack, rightTrack);
+    displayTracks(testManager.currentMatchup.leftTrack, testManager.currentMatchup.rightTrack);
 }
 
 // intakes objects containing track info
@@ -206,10 +185,6 @@ async function displayTracks(leftTrack, rightTrack) {
     } catch (error) {
         console.error(error);
     }
-
-    // set external redirect links
-    deezerLeft = leftTrack.link;
-    deezerRight = rightTrack.link
 
     // **left side**
     displayTrack(leftTrack, 'left', paletteLeft);
@@ -256,7 +231,7 @@ function displayTrack(track, side, palette) {
         return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
     }
 
-    sideId.style.zIndex = 1;
+    sideId.style.zIndex = '1';
     sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
 
     // display info
@@ -264,39 +239,30 @@ function displayTrack(track, side, palette) {
     const previewId = document.getElementById(`${side}Preview`);
     
     coverId.src = cover;
-    titleId.innerHTML = title
-    descriptionId.innerHTML = ``;
+    titleId.textContent = title;
+    descriptionId.textContent = ``;
     previewId.src = preview;
 }
 
 
 function leftClick() {
-    updateElo(leftCategory, rightCategory); // left category is the winner
+    updateElo(testManager.currentMatchup.leftCategory, testManager.currentMatchup.rightCategory); // left category is the winner
 }
 
 function rightClick() {
-    updateElo(rightCategory, leftCategory); // right category is the winner
-    
+    updateElo(testManager.currentMatchup.rightCategory, testManager.currentMatchup.leftCategory); // right category is the winner
 }
-
-// stores external url
-let deezerLeft;
-let deezerRight;
 
 function leftBtn(event) {
     event.stopPropagation(); // block click from being registered by overall side (button absorbs click)
-    window.open(deezerLeft, '_blank');
+    window.open(testManager.currentMatchup.leftTrack.link, '_blank');
 }
 
 function rightBtn(event) {
     event.stopPropagation();
-    window.open(deezerRight, '_blank');
+    window.open(testManager.currentMatchup.rightTrack.link, '_blank');
 }
 
-
-// track number of rounds elapsed
-let numOfRounds = 0;
-let currentRound = 1;
 
 // update elo and probability function: call on side click
 function updateElo(winner, loser) {
@@ -305,6 +271,7 @@ function updateElo(winner, loser) {
     const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400)); // calculate the winning category's pre-comparison probability of winning based strictly on the relative elo difference
 
     // update elos
+    const K = 40;
     const winnerEloGained = K * (1 - winProbability);
     const loserEloLost = -1 * winnerEloGained;
 
@@ -312,38 +279,37 @@ function updateElo(winner, loser) {
     loser.elo = loserRating + loserEloLost;
 
     // update probabilities based on elo gained/lost
-    const winnerProbabilityGain = winnerEloGained / probabilityDivisor;
-    const loserProbabilityLoss = loserEloLost / probabilityDivisor;
+    const winnerProbabilityGain = winnerEloGained / testManager.settings.probabilityDivisor;
+    const loserProbabilityLoss = loserEloLost / testManager.settings.probabilityDivisor;
 
-    if ((winner.probability + winnerProbabilityGain) > probabilityCeil) {
-        winner.probability = probabilityCeil; // cap max probability
+    if ((winner.probability + winnerProbabilityGain) > testManager.settings.probabilityCeil) {
+        winner.probability = testManager.settings.probabilityCeil; // cap max probability
     } else {
         winner.probability += winnerProbabilityGain;
     }
 
-    if ((loser.probability + loserProbabilityLoss) < probabilityFloor) {
-        loser.probability = probabilityFloor; // cap min probability
+    if ((loser.probability + loserProbabilityLoss) < testManager.settings.probabilityFloor) {
+        loser.probability = testManager.settings.probabilityFloor; // cap min probability
     } else {
         loser.probability += loserProbabilityLoss;
     }
 
-    numOfRounds++;
-    currentRound++;
+    testManager.rounds.current++;
     updateCurrentRound();
     
-    if (numOfRounds === totalRounds) { // end of test
+    if (testManager.rounds.current === testManager.rounds.total) { // end of test
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
             }
         }
 
-        categories.sort(sortOrder('elo')); // sort categories by order of rating
+        testManager.categories.sort(sortOrder('elo')); // sort categories by order of rating
 
-        const categoriesSerialized = JSON.stringify(categories);
+        const categoriesSerialized = JSON.stringify(testManager.categories);
         sessionStorage.setItem('results', categoriesSerialized); // save array of categories as json
 
-        sessionStorage.setItem('mode', whichMode); // save mode
+        sessionStorage.setItem('mode', testManager.mode); // save mode
 
         window.location.href = 'results.html'; // display results
 
@@ -354,9 +320,8 @@ function updateElo(winner, loser) {
 
 function updateCurrentRound() {
     const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.innerHTML = `${currentRound}/${totalRounds}`;
+    roundTrackerId.textContent = `${testManager.rounds.current + 1}/${testManager.rounds.total}`;
 }
-
 
 
 function displayResults() {
@@ -373,7 +338,7 @@ function displayResults() {
 
     const title = document.getElementById('title');
     title.style.width = '1200px';
-    title.innerHTML = `Your favourite ${mode} are`;
+    title.textContent = `Your favourite ${mode} are`;
 
     // get top category names
     const first = results[0].name;
@@ -386,10 +351,10 @@ function displayResults() {
     const thirdId = document.getElementById('third');
     const fourthId = document.getElementById('fourth');
 
-    firstId.innerHTML = `1. ${first}`;
-    secondId.innerHTML = `2. ${second}`;
-    thirdId.innerHTML = `3. ${third}`;
-    fourthId.innerHTML = `4. ${fourth}`;
+    firstId.textContent = `1. ${first}`;
+    secondId.textContent = `2. ${second}`;
+    thirdId.textContent = `3. ${third}`;
+    fourthId.textContent = `4. ${fourth}`;
 }
 
 
@@ -404,7 +369,7 @@ function shuffleArray(array) {
 // enable functions to be accessed globally
 window.modeSelector = modeSelector;
 window.startTest = startTest;
-window.initializePlaylists = initializePlaylists;
+window.initializeTest = initializeTest;
 window.updateCurrentRound = updateCurrentRound;
 window.leftClick = leftClick;
 window.rightClick = rightClick;

@@ -26,12 +26,16 @@ const rachmaninoff = new category(1500, [], '15568731743', 0, 0.125, 'Sergei Rac
 const scriabin = new category(1500, [], '15568731703', 0, 0.125, 'Alexander Scriabin');
 const debussy = new category(1500, [], '15568731663', 0, 0.125, 'Claude Debussy');
 
-// export objects
-export {
+// group eras
+const eras = [
     baroque,
     classical,
     romantic,
-    modern,
+    modern
+];
+
+// group composers
+const composers = [
     bach,
     mozart,
     beethoven,
@@ -40,4 +44,7 @@ export {
     rachmaninoff,
     scriabin,
     debussy
-}
+];
+
+// export groups
+export { eras, composers };

@@ -222,6 +222,7 @@ nav {
     width: 180px;
     font-size: 30px;
     font-family: 'circular';
+    color: #243B53;
     transition: 0.3s ease;
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
@@ -251,6 +252,7 @@ nav {
     gap: 30px;
     justify-content: center;
     align-items: center;
+
   }
 
   #results {
