@@ -1,5 +1,6 @@
-// import library file
+// import files
 import { eras, composers } from './library.js';
+import { modeSelector, displayTracks, displayResults } from './ui.js';
 
 const testManager = {
     mode: null,
@@ -31,24 +32,9 @@ const testManager = {
 };
 
 
-function modeSelector() { // runs when start btn is clicked on landing page
-    const parent = document.getElementById("parent");
-
-    const oldDiv = document.getElementById("startScreen");
-    const newDiv = document.getElementById("modeSelectorScreen");
-
-    parent.replaceChild(newDiv, oldDiv); // swap start title/btn with mode selector
-    newDiv.style.display = "block"; // show div -> initially hidden
-
-    const btns = document.getElementsByClassName("ButtonEnter");
-    for (const btn of btns) {
-        btn.style.width = "200px"; // increase btn sizes (to fit 'composer')
-    }
-}
-
 function startTest(mode) { // runs when a mode is selected
     sessionStorage.setItem('mode', mode); // save mode
-    window.location.href = "stage.html";
+    window.location.href = "/pages/stage.html";
 }
 
 
@@ -83,13 +69,11 @@ async function initializeTest() {
 
     // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
     for (const category of testManager.categories) {
-        const url = `/api/playlist/${category.playlistID}`;
+        const url = `/api/playlist/${category.playlistId}`;
 
         try {
             const response = await (await fetch(url)).json();
-
             category.playlist = response.data; // 'response.data' returns array of tracks
-            category.numOfPlaylistTracks = response.total;
 
             console.log(category);
 
@@ -117,7 +101,7 @@ function selectMatchups() {
         testManager.currentMatchup.rightCategory = selectRandomWithProbability(testManager.categories.filter(category => category !== testManager.currentMatchup.leftCategory)); // remove left side selected category from sample pool for right side
     }
 
-    getRandomTrack(testManager.currentMatchup.leftCategory, testManager.currentMatchup.rightCategory);
+    getRandomTracks(testManager.currentMatchup.leftCategory, testManager.currentMatchup.rightCategory);
 }
 
 // select post-initial matchups using a roulette wheel selection system
@@ -144,104 +128,11 @@ function selectRandomWithProbability(possibleSelections) {
     }
 }
 
-function getRandomTrack(leftCategory, rightCategory) {
-    const rangeLeft = leftCategory.playlist.length -1;
-    const rangeRight = rightCategory.playlist.length -1;
-
-    const leftTrackIndex = Math.floor(Math.random() * (rangeLeft + 1));
-    const rightTrackIndex = Math.floor(Math.random() * (rangeRight + 1));
-
-    testManager.currentMatchup.leftTrack = leftCategory.playlist[leftTrackIndex];
-    leftCategory.playlist.splice(leftTrackIndex, 1); // remove used track from playlist
-
-    testManager.currentMatchup.rightTrack = rightCategory.playlist[rightTrackIndex];
-    rightCategory.playlist.splice(rightTrackIndex, 1);
+function getRandomTracks(leftCategory, rightCategory) {
+    testManager.currentMatchup.leftTrack = leftCategory.getRandomTrack();
+    testManager.currentMatchup.rightTrack = rightCategory.getRandomTrack();
 
     displayTracks(testManager.currentMatchup.leftTrack, testManager.currentMatchup.rightTrack);
-}
-
-// intakes objects containing track info
-async function displayTracks(leftTrack, rightTrack) {
-    // fetch new preview links (currently saved ones may have expired) & extract color palette info
-    const leftTrackURL = `/api/track/${leftTrack.id}`;
-    const rightTrackURL = `/api/track/${rightTrack.id}`;
-
-    let paletteLeft;
-    let paletteRight;
-
-    try {
-        const responseLeft = await (await fetch(leftTrackURL)).json();
-        const responseRight = await (await fetch(rightTrackURL)).json();
-
-        console.log(responseLeft);
-        console.log(responseRight);
-
-        leftTrack.preview = responseLeft.preview; // update links
-        rightTrack.preview = responseRight.preview;
-
-        paletteLeft = responseLeft.palette;
-        paletteRight = responseRight.palette;
-
-    } catch (error) {
-        console.error(error);
-    }
-
-    // **left side**
-    displayTrack(leftTrack, 'left', paletteLeft);
-
-    // **right side**
-    displayTrack(rightTrack, 'right', paletteRight);
-}
-
-function displayTrack(track, side, palette) {
-    const cover = track.album.cover_big;
-    const title = track.title;
-    const preview = track.preview;
-
-    const colorOne = palette[0];
-    const colorTwo = palette[1];
-    
-    // style ui components based on extracted colors
-    const sideId = document.getElementById(side);
-    sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
-
-    const titleId = document.getElementById(`${side}Title`);
-    titleId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
-
-    const descriptionId = document.getElementById(`${side}Description`);
-    descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
-
-    const buttonId = document.getElementById(`${side}Button`);
-    buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
-
-    const buttonLabelId = document.getElementById(`${side}ButtonLabel`);
-    buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
-
-    sideId.addEventListener('mouseenter', function() {
-        sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
-    });
-
-    sideId.addEventListener('mouseleave', function() {
-        sideId.style.background = `linear-gradient(206deg, rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}), rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}))`;
-    });
-    
-    // create shadow effect
-    function generateShadowColor(rgbColor) {
-        const shadowColor = rgbColor.map(component => Math.max(0, component - 30));
-        return `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, 0.8)`;
-    }
-
-    sideId.style.zIndex = '1';
-    sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
-
-    // display info
-    const coverId = document.getElementById(`${side}Cover`);
-    const previewId = document.getElementById(`${side}Preview`);
-    
-    coverId.src = cover;
-    titleId.textContent = title;
-    descriptionId.textContent = ``;
-    previewId.src = preview;
 }
 
 
@@ -311,7 +202,7 @@ function updateElo(winner, loser) {
 
         sessionStorage.setItem('mode', testManager.mode); // save mode
 
-        window.location.href = 'results.html'; // display results
+        window.location.href = '/pages/results.html'; // display results
 
     } else {
         selectMatchups();
@@ -321,40 +212,6 @@ function updateElo(winner, loser) {
 function updateCurrentRound() {
     const roundTrackerId = document.getElementById('roundTracker');
     roundTrackerId.textContent = `${testManager.rounds.current + 1}/${testManager.rounds.total}`;
-}
-
-
-function displayResults() {
-    // retrieve sorted results array from sessionStorage
-    const categoriesStored = sessionStorage.getItem('results');
-    const results = JSON.parse(categoriesStored);
-    console.log(results);
-
-    const mode = sessionStorage.getItem('mode');
-
-    // display results
-    const main = document.getElementById('main');
-    main.style.gap = '50px';
-
-    const title = document.getElementById('title');
-    title.style.width = '1200px';
-    title.textContent = `Your favourite ${mode} are`;
-
-    // get top category names
-    const first = results[0].name;
-    const second = results[1].name;
-    const third = results[2].name;
-    const fourth = results[3].name;
-
-    const firstId = document.getElementById('first');
-    const secondId = document.getElementById('second');
-    const thirdId = document.getElementById('third');
-    const fourthId = document.getElementById('fourth');
-
-    firstId.textContent = `1. ${first}`;
-    secondId.textContent = `2. ${second}`;
-    thirdId.textContent = `3. ${third}`;
-    fourthId.textContent = `4. ${fourth}`;
 }
 
 

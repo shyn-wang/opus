@@ -1,10 +1,10 @@
 const express = require('express');
-
 const app = express();
-
 const PORT = process.env.PORT || 3000; // 3000 if running locally
 
 const ColorThief = require('colorthief');
+
+const path = require('path');
 
 // serve frontend files
 app.use(express.static('public'));
@@ -14,7 +14,12 @@ app.listen(PORT, () => {
     console.log(`server running @ http://localhost:${PORT}`);
 });
 
-// create routes
+// open landing page on start
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/pages/index.html"));
+});
+
+// api routes
 
 app.get('/api/playlist/:id', async (req, res) => {
     try {
