@@ -1,3 +1,5 @@
+import { loadTrackInfo } from "./api.js";
+
 // **start screen**
 
 export function modeSelector() { // runs when start btn is clicked on landing page
@@ -19,37 +21,27 @@ export function modeSelector() { // runs when start btn is clicked on landing pa
 
 // **stage screen**
 
+export function displayCurrentRound(testManager) {
+    const roundTrackerId = document.getElementById('roundTracker');
+    roundTrackerId.textContent = `${testManager.rounds.current + 1}/${testManager.rounds.total}`;
+}
+
 // intakes objects containing track info
 export async function displayTracks(leftTrack, rightTrack) {
-    // fetch new preview links (currently saved ones may have expired) & extract color palette info
-    const leftTrackURL = `/api/track/${leftTrack.id}`;
-    const rightTrackURL = `/api/track/${rightTrack.id}`;
+    const trackInfo = {
+        leftTrack: leftTrack,
+        rightTrack: rightTrack,
 
-    let paletteLeft;
-    let paletteRight;
-
-    try {
-        const responseLeft = await (await fetch(leftTrackURL)).json();
-        const responseRight = await (await fetch(rightTrackURL)).json();
-
-        console.log(responseLeft);
-        console.log(responseRight);
-
-        leftTrack.preview = responseLeft.preview; // update links
-        rightTrack.preview = responseRight.preview;
-
-        paletteLeft = responseLeft.palette;
-        paletteRight = responseRight.palette;
-
-    } catch (error) {
-        console.error(error);
+        paletteLeft: null,
+        paletteRight: null
     }
 
-    // **left side**
-    displayTrack(leftTrack, 'left', paletteLeft);
+    // fetch new preview links (currently saved ones may have expired) & extract color palette info
+    await loadTrackInfo(trackInfo);
 
-    // **right side**
-    displayTrack(rightTrack, 'right', paletteRight);
+    // display tracks
+    displayTrack(leftTrack, 'left', trackInfo.paletteLeft);
+    displayTrack(rightTrack, 'right', trackInfo.paletteRight);
 }
 
 function displayTrack(track, side, palette) {

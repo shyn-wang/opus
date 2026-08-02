@@ -1,6 +1,7 @@
 // import files
 import { eras, composers } from './library.js';
-import { modeSelector, displayTracks, displayResults } from './ui.js';
+import { modeSelector, displayCurrentRound, displayTracks, displayResults } from './ui.js';
+import { loadPlaylists } from './api.js';
 
 const testManager = {
     mode: null,
@@ -61,26 +62,13 @@ async function initializeTest() {
         testManager.settings.probabilityFloor = 0.07;
     }
 
-    updateCurrentRound(); // update to show totalRounds
+    displayCurrentRound(testManager);
 
     testManager.initialMatchupsRemaining = testManager.categories.slice(); // make copy of categories array so changes are not shared
-
     shuffleArray(testManager.initialMatchupsRemaining); // generate order of initial matchups
 
     // set the playlist property in each object to an array containing all the tracks in the playlist on deezer
-    for (const category of testManager.categories) {
-        const url = `/api/playlist/${category.playlistId}`;
-
-        try {
-            const response = await (await fetch(url)).json();
-            category.playlist = response.data; // 'response.data' returns array of tracks
-
-            console.log(category);
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    await loadPlaylists(testManager);
 
     selectMatchups(); // prepare first matchup
 }
@@ -185,10 +173,12 @@ function updateElo(winner, loser) {
         loser.probability += loserProbabilityLoss;
     }
 
+    // update round count
     testManager.rounds.current++;
-    updateCurrentRound();
+    displayCurrentRound(testManager);
     
-    if (testManager.rounds.current === testManager.rounds.total) { // end of test
+    // check for test completion
+    if (testManager.rounds.current === testManager.rounds.total) {
         function sortOrder(property) {
             return function(a, b) {
                 return b[property] - a[property];
@@ -205,13 +195,8 @@ function updateElo(winner, loser) {
         window.location.href = '/pages/results.html'; // display results
 
     } else {
-        selectMatchups();
+        selectMatchups(); // next round
     }
-}
-
-function updateCurrentRound() {
-    const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.textContent = `${testManager.rounds.current + 1}/${testManager.rounds.total}`;
 }
 
 
@@ -227,7 +212,6 @@ function shuffleArray(array) {
 window.modeSelector = modeSelector;
 window.startTest = startTest;
 window.initializeTest = initializeTest;
-window.updateCurrentRound = updateCurrentRound;
 window.leftClick = leftClick;
 window.rightClick = rightClick;
 window.leftBtn = leftBtn;
