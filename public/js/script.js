@@ -110,14 +110,14 @@ export class SessionManager {
 
     endTest() {
         // sort categories in descending order (highest elo first)
-        sessionManager.categories.sort((a, b) => b.elo - a.elo);
+        this.categories.sort((a, b) => b.elo - a.elo);
 
         // save array of categories as json
-        const categoriesSerialized = JSON.stringify(sessionManager.categories);
+        const categoriesSerialized = JSON.stringify(this.categories);
         sessionStorage.setItem('results', categoriesSerialized);
 
         // save mode
-        sessionStorage.setItem('mode', sessionManager.mode);
+        sessionStorage.setItem('mode', this.mode);
 
         // display results
         window.location.href = '/pages/results.html';

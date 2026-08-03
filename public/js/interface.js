@@ -74,7 +74,7 @@ function bindStageEvents() {
     document.getElementById('rightButton')
         .addEventListener('click', (event) => {
             event.stopPropagation();
-            window.open(sessionManager.currentMatchup.rightTrack.link, '_blank');
+            window.open(session.currentMatchup.rightTrack.link, '_blank');
         });
 
 
