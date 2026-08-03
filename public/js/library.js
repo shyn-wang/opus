@@ -1,5 +1,11 @@
 // class representing a composer/era
 class Category {
+    name;
+    elo;
+    playlist;
+    playlistId;
+    probability;
+
     constructor(name, playlistId, probability) {
         this.name = name;
         this.elo = 1500; // base rating
