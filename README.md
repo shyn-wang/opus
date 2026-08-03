@@ -113,9 +113,20 @@ By nature, rankings between midfield categories will be inaccurate since the alg
 
 ### System Architecture
 
-Opus implements a client-server architecture built on a static frontend and Express.js backend:
+Opus implements a client-server architecture built on a static frontend and Express.js backend.
 
-Browser -> HTTP Requests -> Express Server -> REST API Routes -> Deezer API
+#### Tech Stack
+*Frontend*: HTML5, CSS3, Vanilla JavaScript
+
+*Backend*: Node.js, Express.js
+
+*External API*: Deezer API
+
+*Image (Album Cover) Processing*: ColorThief
+
+*Deployment*: Render
+
+
 
 #### Frontend JS Modules
 
@@ -131,7 +142,7 @@ Browser -> HTTP Requests -> Express Server -> REST API Routes -> Deezer API
 
 *ui.js* - DOM rendering (displaying matchup/round info, final results)
 
-#### Backend
+#### Express Server
 
 The backend is comprised of an Express.js server that serves the static frontend and proxies GET requests to the public Deezer API (no auth) to retrieve track metadata from curated playlists. 
 
