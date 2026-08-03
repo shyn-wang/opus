@@ -1,5 +1,5 @@
-export async function loadPlaylists(testManager) {
-    for (const category of testManager.categories) {
+export async function loadPlaylists(sessionManager) {
+    for (const category of sessionManager.categories) {
         const url = `/api/playlist/${category.playlistId}`;
 
         try {

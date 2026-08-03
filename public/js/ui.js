@@ -2,7 +2,7 @@ import { loadTrackInfo } from "./api.js";
 
 // **start screen**
 
-export function modeSelector() { // runs when start btn is clicked on landing page
+export function loadModeSelector() { // runs when start btn is clicked on landing page
     const parent = document.getElementById("parent");
 
     const oldDiv = document.getElementById("startScreen");
@@ -21,13 +21,13 @@ export function modeSelector() { // runs when start btn is clicked on landing pa
 
 // **stage screen**
 
-export function displayCurrentRound(testManager) {
+export function displayCurrentRound(sessionManager) {
     const roundTrackerId = document.getElementById('roundTracker');
-    roundTrackerId.textContent = `${testManager.rounds.current + 1}/${testManager.rounds.total}`;
+    roundTrackerId.textContent = `${sessionManager.rounds.current + 1}/${sessionManager.rounds.total}`;
 }
 
 // intakes objects containing track info
-export async function displayTracks(leftTrack, rightTrack) {
+export async function displayMatchup(leftTrack, rightTrack) {
     const trackInfo = {
         leftTrack: leftTrack,
         rightTrack: rightTrack,
