@@ -1,4 +1,4 @@
-// enables pages to interface (access & run) with code
+// handles event binding -> enables page elements to interface with (access & run) code based on corresponding user actions
 
 import { SessionManager } from "./script.js";
 import { loadModeSelector, displayResults } from "./ui.js";
@@ -51,6 +51,10 @@ function bindStageEvents() {
             const loser = session.currentMatchup.rightCategory;
 
             session.processMatchupResults(winner, loser);
+
+            if (session.completed) {
+                session.endTest();
+            }
         });
     
     // right side wins
@@ -60,6 +64,10 @@ function bindStageEvents() {
             const loser = session.currentMatchup.leftCategory;
 
             session.processMatchupResults(winner, loser);
+
+            if (session.completed) {
+                session.endTest();
+            }
         });
 
 

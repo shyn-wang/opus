@@ -2,11 +2,12 @@
 import { eras, composers } from './library.js';
 import { displayCurrentRound, displayMatchup } from './ui.js';
 import { loadPlaylists } from './api.js';
-import { shuffleArray, createMatchup, updateEloAndProbability } from './util.js';
+import { shuffleArray, createMatchup, updateEloAndProbability } from './logic.js';
 
-// create class to store/manaage state data
+// create class to store/manage state data -> comprised of methods directly called by page elements to manage test progression during a session
 export class SessionManager {
     mode;
+    completed;
     categories;
     onInitialMatchups;
     initialMatchupsRemaining;
@@ -17,6 +18,7 @@ export class SessionManager {
 
     constructor() {
         this.mode = null;
+        this.completed = false;
 
         this.categories = [];
 
@@ -99,7 +101,7 @@ export class SessionManager {
         
         // check for test completion
         if (this.rounds.current === this.rounds.total) {
-            this.endTest();
+            this.completed = true;
             
         } else { // next round
             createMatchup(this);

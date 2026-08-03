@@ -1,4 +1,4 @@
-// class representing a composer/era
+// class representing a single composer/era (category)
 class Category {
     name;
     elo;

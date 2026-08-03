@@ -1,4 +1,6 @@
-// durstenfeld shuffle
+// contains functions that comprise the logic for matchmaking & ranking
+
+// durstenfeld shuffle -> used to randomly generate the order of the initial matchups
 export function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

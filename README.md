@@ -30,9 +30,6 @@ Even with such limitations in mind, Opus can hopefully still prove valuable to c
 
 ## Technical Specifications
 
-### API Usage
-Opus communicates with the publicly accessible Deezer API (no authentication required) via GET requests to retrieve track data from curated composer and era specific playlists.
-
 ### Matchmaking/Ranking Algorithm
 _The core logic that powers Opus under-the-hood is built on two interconnected systems: an elo rating system and a probabilistic roulette wheel selection system._ [(Approach Explained)](#why-take-this-approach)
 
@@ -112,4 +109,31 @@ As such, the algorithm naturally prevents outlier pieces from exerting an outsiz
 The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that features every category. 
 
 By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to fairly rank them against each other. With this in mind, the composer test will only display the top four ranked composers on the results page.
+
+
+### System Architecture
+
+Opus implements a client-server architecture built on a static frontend and Express.js backend:
+
+Browser -> HTTP Requests -> Express Server -> REST API Routes -> Deezer API
+
+#### Frontend JS Modules
+
+*interface.js* - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
+
+*script.js* - Implements the SessionManager class to store state data and control test progression (starting/initializing, processing matchups, ending)
+
+*library.js* - Builds objects pertaining to each composer & era using the Category class 
+
+*logic.js* - Matchmaking & ranking algorithm logic
+
+*api.js* - Communication with backend API routes
+
+*ui.js* - DOM rendering (displaying matchup/round info, final results)
+
+#### Backend
+
+The backend is comprised of an Express.js server that serves the static frontend and proxies GET requests to the public Deezer API (no auth) to retrieve track metadata from curated playlists. 
+
+ColorThief is also implemented to extract album colour palette data (used for dynamic theming) server-side, keeping the frontend independent of Node.js. 
 
