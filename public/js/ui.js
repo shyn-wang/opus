@@ -60,7 +60,7 @@ function preloadImage(src) {
         const img = new Image();
 
         img.onload = resolve;
-        img.src = src;
+        img.src = src; // loaded img link is stored in browser cache
     });
 }
 
@@ -68,7 +68,7 @@ function displayTrackInfo(track, side) {
     const cover = track.album.cover_big;
     const title = track.title;
 
-    document.getElementById(`${side}Cover`).src = cover; // assign cover
+    document.getElementById(`${side}Cover`).src = cover; // assign cover -> served instantly since img url is already stored in cache
     document.getElementById(`${side}Title`).textContent = title; // assign title
 }
 
