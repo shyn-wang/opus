@@ -1,37 +1,39 @@
 export async function loadPlaylists(sessionManager) {
-    for (const category of sessionManager.categories) {
-        const url = `/api/playlist/${category.playlistId}`;
+    await Promise.all( // use promise.all to run fetch requests in parallel
+        sessionManager.categories.map(async (category) => { // use map to create an array of promises from the categories array (async function called on each category object creates a promise)
+            const url = `/api/playlist/${category.playlistId}`;
 
-        try {
-            const response = await (await fetch(url)).json();
-            category.playlist = response.data; // 'response.data' returns array of tracks
+            try {
+                const response = await (await fetch(url)).json();
+                category.playlist = response.data; // 'response.data' returns array of tracks
 
-            console.log(category);
+                console.log(category);
 
-        } catch (error) {
-            console.error(error);
-        }
-    }
+            } catch (error) {
+                console.error(error);
+            }
+        })
+    );
 }
 
-export async function loadTrackInfo(trackInfo) {
-    const leftTrackURL = `/api/track/${trackInfo.leftTrack.id}`;
-    const rightTrackURL = `/api/track/${trackInfo.rightTrack.id}`;
+// called immediately prior to displaying a matchup
+export async function loadPaletteAndPreview(trackData) {
+    const leftTrackURL = `/api/track/${trackData.leftTrack.id}`;
+    const rightTrackURL = `/api/track/${trackData.rightTrack.id}`;
 
     try {
-        const responseLeft = await (await fetch(leftTrackURL)).json();
-        const responseRight = await (await fetch(rightTrackURL)).json();
+        const [responseLeft, responseRight] = await Promise.all([
+            fetch(leftTrackURL).then(res => res.json()),
+            fetch(rightTrackURL).then(res => res.json())
+        ]);
 
-        console.log(responseLeft);
-        console.log(responseRight);
+        trackData.leftTrack.preview = responseLeft.preview; // update preview links
+        trackData.rightTrack.preview = responseRight.preview;
 
-        trackInfo.leftTrack.preview = responseLeft.preview; // update links
-        trackInfo.rightTrack.preview = responseRight.preview;
-
-        trackInfo.paletteLeft = responseLeft.palette;
-        trackInfo.paletteRight = responseRight.palette;
+        trackData.paletteLeft = responseLeft.palette; // set palette data
+        trackData.paletteRight = responseRight.palette;
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 }

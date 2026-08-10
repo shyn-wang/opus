@@ -1,4 +1,4 @@
-import { loadTrackInfo } from "./api.js";
+import { loadPaletteAndPreview } from "./api.js";
 
 // **start screen**
 
@@ -28,7 +28,7 @@ export function displayCurrentRound(sessionManager) {
 
 // intakes objects containing track info
 export async function displayMatchup(leftTrack, rightTrack) {
-    const trackInfo = {
+    const trackData = {
         leftTrack: leftTrack,
         rightTrack: rightTrack,
 
@@ -36,19 +36,43 @@ export async function displayMatchup(leftTrack, rightTrack) {
         paletteRight: null
     }
 
-    // fetch new preview links (currently saved ones may have expired) & extract color palette info
-    await loadTrackInfo(trackInfo);
+    // wait for all required content to load before displaying - prevents staggered entry (i.e. album cover updated before background)
+    await Promise.all([
+        // load album covers
+        preloadImage(leftTrack.album.cover_big),
+        preloadImage(rightTrack.album.cover_big),
 
-    // display tracks
-    displayTrack(leftTrack, 'left', trackInfo.paletteLeft);
-    displayTrack(rightTrack, 'right', trackInfo.paletteRight);
+        // fetch new preview links (currently saved ones may have expired) & extract color palette info
+        loadPaletteAndPreview(trackData)
+    ]);
+
+    // display titles & album covers
+    displayTrackInfo(leftTrack, 'left');
+    displayTrackInfo(rightTrack, 'right');
+
+    // apply palette styling & set preview link
+    applyStyling(leftTrack, 'left', trackData.paletteLeft);
+    applyStyling(rightTrack, 'right', trackData.paletteRight);
 }
 
-function displayTrack(track, side, palette) {
+function preloadImage(src) {
+    return new Promise((resolve) => {
+        const img = new Image();
+
+        img.onload = resolve;
+        img.src = src;
+    });
+}
+
+function displayTrackInfo(track, side) {
     const cover = track.album.cover_big;
     const title = track.title;
-    const preview = track.preview;
 
+    document.getElementById(`${side}Cover`).src = cover; // assign cover
+    document.getElementById(`${side}Title`).textContent = title; // assign title
+}
+
+function applyStyling(track, side, palette) {
     const colorOne = palette[0];
     const colorTwo = palette[1];
     
@@ -85,14 +109,9 @@ function displayTrack(track, side, palette) {
     sideId.style.zIndex = '1';
     sideId.style.boxShadow = `30px 0 60px ${generateShadowColor(colorOne)}`;
 
-    // display info
-    const coverId = document.getElementById(`${side}Cover`);
-    const previewId = document.getElementById(`${side}Preview`);
-    
-    coverId.src = cover;
-    titleId.textContent = title;
-    descriptionId.textContent = ``;
-    previewId.src = preview;
+    // set preview link
+    const preview = track.preview;
+    document.getElementById(`${side}Preview`).src = preview;
 }
 
 
