@@ -16,9 +16,11 @@ The comparison test for both modes will present two selected pieces each round a
 
 At the end of the test, the top-ranked era(s) or composer(s) will be presented to the user as recommended starting points for listening.
 
-<img src="images/demo.gif" alt="Demo" width="600">
+<br>
 
-<br><br>
+https://github.com/user-attachments/assets/405e6c28-ee3e-419e-bd5c-582688c81dfd
+
+<br>
 
 
 **Limitations**
