@@ -36,6 +36,7 @@ html, body {
     filter: blur(140px);
     opacity: 0.65;
     will-change: transform;
+    pointer-events: none;
 }
 
 .blob1 {
@@ -217,18 +218,28 @@ nav {
   margin-top: -80px;
 }
 
+#parent {
+    position: relative;
+    z-index: 10;
+}
+
 .ButtonEnter {
     height: 70px;
     width: 180px;
+    position: relative;
+
     font-size: 30px;
     font-family: 'circular';
     color: #243B53;
+
     transition: 0.3s ease;
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+
     border-radius: 16px;
     z-index: 1000;
+
     padding: 16px 24px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
