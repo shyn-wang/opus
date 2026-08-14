@@ -200,7 +200,7 @@ nav {
     transform: translateY(-1px);
 }
 
-#title {
+.title {
     position: relative;
     width: 900px;
     font-family: 'font';
