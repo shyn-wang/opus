@@ -129,7 +129,7 @@ export function displayResults() {
     const main = document.getElementById('main');
     main.style.gap = '50px';
 
-    const title = document.getElementById('title');
+    const title = document.querySelector('.title'); // get title element by class (first element -> only element of class '.title' on results page)
     title.style.width = '1200px';
     title.textContent = `Your favourite ${mode} are`;
 

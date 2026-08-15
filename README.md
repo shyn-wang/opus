@@ -135,7 +135,7 @@ Opus implements a client-server architecture built on a static frontend and Expr
 
 *interface.js* - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
 
-*script.js* - Implements the SessionManager class to store state data and control test progression (starting/initializing, processing matchups, ending)
+*script.js* - Implements the SessionManager class to store state data and control test progression; each class method corresponds to a user-driven event (starting/initializing, processing matchup results, ending)
 
 *library.js* - Builds objects pertaining to each composer & era using the Category class 
 
