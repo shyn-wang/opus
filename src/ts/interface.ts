@@ -1,7 +1,9 @@
 // handles event binding -> enables page elements to interface with (access & run) code based on corresponding user actions
 
-import { SessionManager } from "./script.js";
-import { loadModeSelector, displayResults } from "./ui.js";
+import { SessionManager } from "./script";
+import { loadModeSelector, displayResults } from "./ui";
+import { Category } from "./library";
+import type { DeezerTrack } from "./types";
 
 const session = new SessionManager();
 
@@ -26,18 +28,18 @@ function initializePage() {
 }
 
 function bindHomeEvents() {
-     document.getElementById('startBtn')
+     (document.getElementById('startBtn') as HTMLButtonElement)
         .addEventListener('click', () => {
             loadModeSelector();
         });
 
 
-    document.getElementById('era')
+    (document.getElementById('era') as HTMLButtonElement)
         .addEventListener('click', () => {
             session.startTest('eras');
         });
 
-    document.getElementById('composer')
+    (document.getElementById('composer') as HTMLButtonElement)
         .addEventListener('click', () => {
             session.startTest('composers');
         });
@@ -45,10 +47,10 @@ function bindHomeEvents() {
 
 function bindStageEvents() {
     // left side wins
-    document.getElementById('left')
+    (document.getElementById('left') as HTMLDivElement)
         .addEventListener('click', () => {
-            const winner = session.currentMatchup.leftCategory;
-            const loser = session.currentMatchup.rightCategory;
+            const winner = session.currentMatchup.leftCategory as Category;
+            const loser = session.currentMatchup.rightCategory as Category;
 
             session.processMatchupResults(winner, loser);
 
@@ -58,10 +60,10 @@ function bindStageEvents() {
         });
     
     // right side wins
-    document.getElementById('right')
+    (document.getElementById('right') as HTMLDivElement)
         .addEventListener('click', () => {
-            const winner = session.currentMatchup.rightCategory;
-            const loser = session.currentMatchup.leftCategory;
+            const winner = session.currentMatchup.rightCategory as Category;
+            const loser = session.currentMatchup.leftCategory as Category;
 
             session.processMatchupResults(winner, loser);
 
@@ -72,27 +74,27 @@ function bindStageEvents() {
 
 
     // left deezer link
-    document.getElementById('leftButton')
+    (document.getElementById('leftButton') as HTMLButtonElement)
         .addEventListener('click', (event) => {
             event.stopPropagation(); // block button click from being registered by overall side (button absorbs click)
-            window.open(session.currentMatchup.leftTrack.link, '_blank');
+            window.open((session.currentMatchup.leftTrack as DeezerTrack).link, '_blank');
         });
 
     // right deezer link
-    document.getElementById('rightButton')
+    (document.getElementById('rightButton') as HTMLButtonElement)
         .addEventListener('click', (event) => {
             event.stopPropagation();
-            window.open(session.currentMatchup.rightTrack.link, '_blank');
+            window.open((session.currentMatchup.rightTrack as DeezerTrack).link, '_blank');
         });
 
 
     // stop audio player interactions from registering as side clicks
-    document.getElementById('leftPreview')
+    (document.getElementById('leftPreview') as HTMLAudioElement)
         .addEventListener('click', (event) => {
-            event.stopPropagation();
+            event.stopPropagation(); // absorb click
         });
 
-    document.getElementById('rightPreview')
+    (document.getElementById('rightPreview') as HTMLAudioElement)
         .addEventListener('click', (event) => {
             event.stopPropagation();
         });

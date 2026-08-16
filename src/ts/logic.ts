@@ -1,7 +1,11 @@
+import { Category } from "./library";
+import { SessionManager } from "./script";
+import type { SessionSettings, SessionMatchup } from "./types";
+
 // contains functions that comprise the logic for matchmaking & ranking
 
 // durstenfeld shuffle -> used to randomly generate the order of the initial matchups
-export function shuffleArray(array) {
+export function shuffleArray(array: Category[]) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -10,7 +14,7 @@ export function shuffleArray(array) {
 
 
 // select categories comprising a matchup
-export function createMatchup(sessionManager) {
+export function createMatchup(sessionManager: SessionManager) {
     // select categories part of initial matchups randomly (initialMatchupsRemaining is shuffled)
     if (sessionManager.onInitialMatchups) {
         sessionManager.currentMatchup.leftCategory = sessionManager.initialMatchupsRemaining[0];
@@ -27,20 +31,20 @@ export function createMatchup(sessionManager) {
         sessionManager.currentMatchup.rightCategory = selectRandomWithProbability(sessionManager.categories.filter(category => category !== sessionManager.currentMatchup.leftCategory)); // remove left side selected category from sample pool for right side
     }
 
-    getRandomTracks(sessionManager);
+    getRandomTracks(sessionManager.currentMatchup);
 }
 
-function getRandomTracks(sessionManager) {
-    const leftCategory = sessionManager.currentMatchup.leftCategory;
-    const rightCategory = sessionManager.currentMatchup.rightCategory;
+function getRandomTracks(currentMatchup: SessionMatchup) {
+    const leftCategory = currentMatchup.leftCategory;
+    const rightCategory = currentMatchup.rightCategory;
 
-    sessionManager.currentMatchup.leftTrack = leftCategory.getRandomTrack();
-    sessionManager.currentMatchup.rightTrack = rightCategory.getRandomTrack();
+    currentMatchup.leftTrack = (leftCategory as Category).getRandomTrack();
+    currentMatchup.rightTrack = (rightCategory as Category).getRandomTrack();
 }
 
 
 // used to select post-initial matchups using a roulette wheel selection system
-function selectRandomWithProbability(possibleSelections) {
+function selectRandomWithProbability(possibleSelections: Category[]): Category {
     // calculate sum of all individual probability weights (total range)
     let probabilitySum = 0;
 
@@ -61,10 +65,13 @@ function selectRandomWithProbability(possibleSelections) {
             return selection; // break loop
         }
     }
+
+    // will never occur given valid input
+    throw new Error('operation failed');
 }
 
 // update elo and probability function: called when a round is completed
-export function updateEloAndProbability(winner, loser, settings) {
+export function updateEloAndProbability(winner: Category, loser: Category, settings: SessionSettings) {
     const winnerRating = winner.elo;
     const loserRating = loser.elo;
     const winProbability = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400)); // calculate the winning category's pre-comparison probability of winning based strictly on the relative elo difference
