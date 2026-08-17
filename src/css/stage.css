@@ -4,7 +4,7 @@
   }
   
   @font-face {
-    font-family: 'test';
+    font-family: 'font';
     src: url('../css/circular-std/CircularStd-Book.otf');
   }
 
@@ -73,7 +73,7 @@ html, body {
 
 .description {
     text-align: center;
-    font-family: 'test';
+    font-family: 'font';
     font-size: 15px;
     color: rgb(149, 149, 149);
     margin-top: -10px;
@@ -88,14 +88,19 @@ html, body {
 
 .container {
     height: 64px;
-    background-color: rgba(243, 242, 242, 0.553);
-    border-radius: 100px;
+    border-radius: 40px;
     width: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-color: transparent;
     margin-top: 100px;
+    
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .container:hover {
@@ -136,11 +141,17 @@ html, body {
     color: #ffffff;
     font-family: 'circular';
     font-size: 18px;
-    background-color: rgba(0, 0, 0, 0.069);
     width: 60px;
     height: 24px;
-    padding: 5px;
-    border-radius: 20px;
+    padding: 7px;
+    border-radius: 40px;
+
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s ease;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .sides {

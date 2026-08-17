@@ -1,11 +1,14 @@
-export async function loadPlaylists(sessionManager) {
+import type { SessionManager } from "./script";
+import type { DeezerTrack, TrackData, PaletteAndPreview } from "./types";
+
+export async function loadPlaylists(sessionManager: SessionManager) {
     await Promise.all( // use promise.all to run fetch requests in parallel
         sessionManager.categories.map(async (category) => { // use map to create an array of promises from the categories array (async function called on each category object creates a promise)
             const url = `/api/playlist/${category.playlistId}`;
 
             try {
                 const response = await (await fetch(url)).json();
-                category.playlist = response.data; // 'response.data' returns array of tracks
+                category.playlist = response.data as DeezerTrack[]; // 'response.data' returns array of track objects
 
                 console.log(category);
 
@@ -17,15 +20,20 @@ export async function loadPlaylists(sessionManager) {
 }
 
 // called immediately prior to displaying a matchup
-export async function loadPaletteAndPreview(trackData) {
+export async function loadPaletteAndPreview(trackData: TrackData) {
     const leftTrackURL = `/api/track/${trackData.leftTrack.id}`;
     const rightTrackURL = `/api/track/${trackData.rightTrack.id}`;
 
     try {
-        const [responseLeft, responseRight] = await Promise.all([
+        let responseLeft: PaletteAndPreview;
+        let responseRight: PaletteAndPreview;
+
+        [responseLeft, responseRight] = await Promise.all([
             fetch(leftTrackURL).then(res => res.json()),
             fetch(rightTrackURL).then(res => res.json())
         ]);
+
+        console.log(responseLeft);
 
         trackData.leftTrack.preview = responseLeft.preview; // update preview links
         trackData.rightTrack.preview = responseRight.preview;

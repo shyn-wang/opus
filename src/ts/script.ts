@@ -1,19 +1,29 @@
 // import files
-import { eras, composers } from './library.js';
-import { displayCurrentRound, displayMatchup } from './ui.js';
-import { loadPlaylists } from './api.js';
-import { shuffleArray, createMatchup, updateEloAndProbability } from './logic.js';
+import { eras, composers } from './library';
+import { displayCurrentRound, displayMatchup } from './ui';
+import { loadPlaylists } from './api';
+import { shuffleArray, createMatchup, updateEloAndProbability } from './logic';
+
+import type { Mode, DeezerTrack, SessionSettings, SessionMatchup } from './types';
+import type { Category } from './library';      
 
 // create class to store/manage state data -> comprised of methods directly called by page elements to manage test progression during a session
 export class SessionManager {
-    mode;
-    completed;
-    categories;
-    onInitialMatchups;
-    initialMatchupsRemaining;
-    currentMatchup;
-    rounds;
-    settings;
+    mode: Mode | null;
+    completed: boolean;
+    categories: Category[];
+
+    onInitialMatchups: boolean;
+    initialMatchupsRemaining: Category[];
+
+    currentMatchup: SessionMatchup;
+    
+    rounds: {
+        total: number,
+        current: number
+    }
+
+    settings: SessionSettings;
 
 
     constructor() {
@@ -47,14 +57,14 @@ export class SessionManager {
     }
 
 
-    startTest(mode) { // runs when a mode is selected
+    startTest(mode: Mode) { // runs when a mode is selected
         sessionStorage.setItem('mode', mode); // save mode
         window.location.href = "/pages/stage.html";
     }
 
 
     async initializeTest() {
-        this.mode = sessionStorage.getItem('mode');
+        this.mode = sessionStorage.getItem('mode') as Mode;
 
         // config settings based on mode
         if (this.mode === 'eras') {
@@ -88,11 +98,11 @@ export class SessionManager {
 
         // process first matchup
         createMatchup(this); // -> fills currentMatchup properties
-        displayMatchup(this.currentMatchup.leftTrack, this.currentMatchup.rightTrack);
+        displayMatchup(this.currentMatchup.leftTrack as DeezerTrack, this.currentMatchup.rightTrack as DeezerTrack);
     }
 
 
-    processMatchupResults(winner, loser) {
+    processMatchupResults(winner: Category, loser: Category) {
         updateEloAndProbability(winner, loser, this.settings);
 
         // update round count
@@ -105,7 +115,7 @@ export class SessionManager {
             
         } else { // next round
             createMatchup(this);
-            displayMatchup(this.currentMatchup.leftTrack, this.currentMatchup.rightTrack);
+            displayMatchup(this.currentMatchup.leftTrack as DeezerTrack, this.currentMatchup.rightTrack as DeezerTrack);
         }
     }
 
@@ -117,9 +127,6 @@ export class SessionManager {
         // save array of categories as json
         const categoriesSerialized = JSON.stringify(this.categories);
         sessionStorage.setItem('results', categoriesSerialized);
-
-        // save mode
-        sessionStorage.setItem('mode', this.mode);
 
         // display results
         window.location.href = '/pages/results.html';

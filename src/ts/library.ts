@@ -1,12 +1,14 @@
-// class representing a single composer/era (category)
-class Category {
-    name;
-    elo;
-    playlist;
-    playlistId;
-    probability;
+import type { DeezerTrack } from "./types";
 
-    constructor(name, playlistId, probability) {
+// class representing a single composer/era (category)
+export class Category {
+    name: string;
+    elo: number;
+    playlist: DeezerTrack[];
+    playlistId: string;
+    probability: number;
+
+    constructor(name: string, playlistId: string, probability: number) {
         this.name = name;
         this.elo = 1500; // base rating
 
@@ -16,7 +18,7 @@ class Category {
         this.probability = probability;
     }
 
-    getRandomTrack() {
+    getRandomTrack(): DeezerTrack {
         const selectedIndex = Math.floor((Math.random() * (this.playlist.length)));
         const selectedTrack = this.playlist[selectedIndex];
 
@@ -44,7 +46,7 @@ const scriabin = new Category('Alexander Scriabin', '15568731703', 0.125);
 const debussy = new Category('Claude Debussy', '15568731663', 0.125);
 
 // group eras
-const eras = [
+export const eras = [
     baroque,
     classical,
     romantic,
@@ -52,7 +54,7 @@ const eras = [
 ];
 
 // group composers
-const composers = [
+export const composers = [
     bach,
     mozart,
     beethoven,
@@ -62,6 +64,3 @@ const composers = [
     scriabin,
     debussy
 ];
-
-// export groups
-export { eras, composers };

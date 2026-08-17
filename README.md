@@ -116,38 +116,36 @@ By nature, rankings between midfield categories will be inaccurate since the alg
 
 ### System Architecture
 
-Opus implements a client-server architecture built on a static frontend and Express.js backend.
+Opus implements a client-server architecture featuring a static frontend bundled by Vite and an Express.js backend.
+
 
 #### Tech Stack
-*Frontend*: HTML5, CSS3, Vanilla JavaScript
-
-*Backend*: Node.js, Express.js
-
-*External API*: Deezer API
-
-*Image (Album Cover) Processing*: ColorThief
-
-*Deployment*: Render
+| Layer | Technologies |
+|---|---|
+| Frontend | `HTML5, CSS3, TypeScript, Vite` |
+| Backend | `Node.js, Express.js, JavaScript` |
+| Third-Party Integrations | `Deezer API, ColorThief` |
+| Deployment | `Render` |
 
 
+#### Frontend TS Modules
 
-#### Frontend JS Modules
+`interface.ts` - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
 
-*interface.js* - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
+`script.ts` - Implements the SessionManager class to store state data and control test progression; each class method corresponds to a user-driven event (starting/initializing, processing matchup results, ending)
 
-*script.js* - Implements the SessionManager class to store state data and control test progression; each class method corresponds to a user-driven event (starting/initializing, processing matchup results, ending)
+`library.ts` - Builds objects pertaining to each composer & era using the Category class 
 
-*library.js* - Builds objects pertaining to each composer & era using the Category class 
+`logic.ts` - Matchmaking & ranking algorithm logic
 
-*logic.js* - Matchmaking & ranking algorithm logic
+`api.ts` - Communication with backend API routes
 
-*api.js* - Communication with backend API routes
+`ui.ts` - DOM rendering (displaying matchup/round info, final results)
 
-*ui.js* - DOM rendering (displaying matchup/round info, final results)
 
 #### Express Server
 
-The backend is comprised of an Express.js server that serves the static frontend and proxies GET requests to the public Deezer API (no auth) to retrieve track metadata from curated playlists. 
+The backend is comprised of an Express.js server that serves the static frontend and proxies GET requests to the public Deezer API (no auth) to retrieve track metadata from curated playlists representing each category.
 
 ColorThief is also implemented to extract album colour palette data (used for dynamic theming) server-side, keeping the frontend independent of Node.js. 
 
