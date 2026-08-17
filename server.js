@@ -47,8 +47,8 @@ app.get('/api/track/:id', async (req, res) => {
 
         // return preview & palette to frontend
         const data = {
-            'preview': preview,
-            'palette': palette
+            preview: preview,
+            palette: palette
         };
 
         res.json(data); // send response as json

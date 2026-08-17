@@ -2,10 +2,11 @@
 
 import { SessionManager } from "./script";
 import { loadModeSelector, displayResults } from "./ui";
-import { Category } from "./library";
+
+import type { Category } from "./library";
 import type { DeezerTrack } from "./types";
 
-const session = new SessionManager();
+const session = new SessionManager(); // create new session instance -> object used to control test progression
 
 document.addEventListener('DOMContentLoaded', () => {
     initializePage(); // run on page load

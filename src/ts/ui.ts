@@ -1,7 +1,8 @@
 import { loadPaletteAndPreview } from "./api";
-import { SessionManager } from "./script";
-import { Category } from "./library";
-import type { DeezerTrack, TrackData, ColorThiefPalette } from "./types";
+
+import type { SessionManager } from "./script";
+import type { Category } from "./library";
+import type { Mode, DeezerTrack, TrackData, ColorThiefPalette } from "./types";
 
 // **start screen**
 
@@ -89,11 +90,11 @@ function applyStyling(track: DeezerTrack, side: 'left' | 'right', palette: Color
     const descriptionId = document.getElementById(`${side}Description`) as HTMLHeadingElement;
     descriptionId.style.color = `rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 0.8)`;
 
-    const buttonId = document.getElementById(`${side}Button`) as HTMLButtonElement;
-    buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
+    // const buttonId = document.getElementById(`${side}Button`) as HTMLButtonElement;
+    // buttonId.style.backgroundColor = `rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.3)`;
 
     const buttonLabelId = document.getElementById(`${side}ButtonLabel`) as HTMLDivElement;
-    buttonLabelId.style.color = `rgb(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]})`;
+    buttonLabelId.style.color = `rgb(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]})`;
 
     sideId.addEventListener('mouseenter', function() {
         sideId.style.background = `linear-gradient(206deg, rgba(${colorOne[0]}, ${colorOne[1]}, ${colorOne[2]}, 0.62), rgba(${colorTwo[0]}, ${colorTwo[1]}, ${colorTwo[2]}, 1)), url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.97' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
@@ -126,7 +127,7 @@ export function displayResults() {
     const results = JSON.parse(categoriesStored) as Category[]; // convert back to array
     console.log(results);
 
-    const mode = sessionStorage.getItem('mode') as string; 
+    const mode = sessionStorage.getItem('mode') as Mode; // saved at start of test when mode was initially selected
 
     // display results
     const main = document.getElementById('main') as HTMLElement;

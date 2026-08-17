@@ -1,5 +1,5 @@
-import { SessionManager } from "./script";
-import type { DeezerTrack, TrackData } from "./types";
+import type { SessionManager } from "./script";
+import type { DeezerTrack, TrackData, PaletteAndPreview } from "./types";
 
 export async function loadPlaylists(sessionManager: SessionManager) {
     await Promise.all( // use promise.all to run fetch requests in parallel
@@ -25,10 +25,15 @@ export async function loadPaletteAndPreview(trackData: TrackData) {
     const rightTrackURL = `/api/track/${trackData.rightTrack.id}`;
 
     try {
-        const [responseLeft, responseRight] = await Promise.all([
+        let responseLeft: PaletteAndPreview;
+        let responseRight: PaletteAndPreview;
+
+        [responseLeft, responseRight] = await Promise.all([
             fetch(leftTrackURL).then(res => res.json()),
             fetch(rightTrackURL).then(res => res.json())
         ]);
+
+        console.log(responseLeft);
 
         trackData.leftTrack.preview = responseLeft.preview; // update preview links
         trackData.rightTrack.preview = responseRight.preview;

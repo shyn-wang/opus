@@ -1,4 +1,6 @@
-import { Category } from "./library"
+import type { Category } from "./library"
+
+export type Mode = 'eras' | 'composers';
 
 export interface DeezerTrack { // representation of the key properties of a deezer track object
     id: number,
@@ -36,3 +38,8 @@ export type ColorThiefPalette = [ // representation of a colorthief palette outp
     [number, number, number],
     [number, number, number],
 ];
+
+export interface PaletteAndPreview {
+    preview: string,
+    palette: ColorThiefPalette
+}

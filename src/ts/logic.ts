@@ -1,5 +1,5 @@
-import { Category } from "./library";
-import { SessionManager } from "./script";
+import type { Category } from "./library";
+import type { SessionManager } from "./script";
 import type { SessionSettings, SessionMatchup } from "./types";
 
 // contains functions that comprise the logic for matchmaking & ranking

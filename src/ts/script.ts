@@ -1,13 +1,15 @@
 // import files
-import { Category, eras, composers } from './library';
+import { eras, composers } from './library';
 import { displayCurrentRound, displayMatchup } from './ui';
 import { loadPlaylists } from './api';
 import { shuffleArray, createMatchup, updateEloAndProbability } from './logic';
-import type { DeezerTrack, SessionSettings, SessionMatchup } from './types';
+
+import type { Mode, DeezerTrack, SessionSettings, SessionMatchup } from './types';
+import type { Category } from './library';      
 
 // create class to store/manage state data -> comprised of methods directly called by page elements to manage test progression during a session
 export class SessionManager {
-    mode: 'eras' | 'composers' | null;
+    mode: Mode | null;
     completed: boolean;
     categories: Category[];
 
@@ -55,14 +57,14 @@ export class SessionManager {
     }
 
 
-    startTest(mode: 'eras' | 'composers') { // runs when a mode is selected
+    startTest(mode: Mode) { // runs when a mode is selected
         sessionStorage.setItem('mode', mode); // save mode
         window.location.href = "/pages/stage.html";
     }
 
 
     async initializeTest() {
-        this.mode = sessionStorage.getItem('mode') as 'eras' | 'composers';
+        this.mode = sessionStorage.getItem('mode') as Mode;
 
         // config settings based on mode
         if (this.mode === 'eras') {
@@ -125,9 +127,6 @@ export class SessionManager {
         // save array of categories as json
         const categoriesSerialized = JSON.stringify(this.categories);
         sessionStorage.setItem('results', categoriesSerialized);
-
-        // save mode
-        sessionStorage.setItem('mode', this.mode as string); // ---------redundant----------???????? -> previously saved mode persists in sessionStorage??????
 
         // display results
         window.location.href = '/pages/results.html';
