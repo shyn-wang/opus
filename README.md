@@ -120,28 +120,27 @@ Opus implements a client-server architecture featuring a static frontend bundled
 
 
 #### Tech Stack
-*Frontend*: HTML5, CSS3, TypeScript, Vite
-
-*Backend*: Node.js, Express.js, JavaScript
-
-*Third-Party Integrations* Deezer API, ColorThief
-
-*Deployment*: Render
+| Layer | Technologies |
+|---|---|
+| Frontend | `HTML5, CSS3, TypeScript, Vite` |
+| Backend | `Node.js, Express.js, JavaScript` |
+| Third-Party Integrations | `Deezer API, ColorThief` |
+| Deployment | `Render` |
 
 
 #### Frontend TS Modules
 
-*interface.ts* - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
+`interface.ts` - Per-page entry point: binds DOM events to application logic through an instance of the SessionManager class, linking user actions to test progression
 
-*script.ts* - Implements the SessionManager class to store state data and control test progression; each class method corresponds to a user-driven event (starting/initializing, processing matchup results, ending)
+`script.ts` - Implements the SessionManager class to store state data and control test progression; each class method corresponds to a user-driven event (starting/initializing, processing matchup results, ending)
 
-*library.ts* - Builds objects pertaining to each composer & era using the Category class 
+`library.ts` - Builds objects pertaining to each composer & era using the Category class 
 
-*logic.ts* - Matchmaking & ranking algorithm logic
+`logic.ts` - Matchmaking & ranking algorithm logic
 
-*api.ts* - Communication with backend API routes
+`api.ts` - Communication with backend API routes
 
-*ui.ts* - DOM rendering (displaying matchup/round info, final results)
+`ui.ts` - DOM rendering (displaying matchup/round info, final results)
 
 
 #### Express Server
