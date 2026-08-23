@@ -25,7 +25,7 @@ https://github.com/user-attachments/assets/5e25e3ea-de52-465b-ba1d-cf6a6e374da5
 
 **Limitations**
 
-The A/B, sample-based testing methodology employed by Opus is inherently prone to inaccuracies, as it is impossible to form a complete opinion on a piece from a random 30-second clip (true for any genre, but especially so for classical, which is built on the idea of long-form consumption). Moreover, the algorithm may pair works of entirely different contexts with each other (i.e. one movement of a classical sonata vs a romantic lieder), making some comparisons inherently unfair. Consequently, results may be skewed in favor of eras or composers that do not best reflect the taste of the user.
+The A/B, sample-based testing methodology employed by Opus is inherently prone to inaccuracies, as it is impossible to form a complete opinion on a piece from a random 30-second clip (true for any genre, but especially so for classical, which is built on the idea of long-form consumption). Moreover, the algorithm may pair works of entirely different contexts with each other (i.e. one movement of a classical sonata versus a romantic lied), making some comparisons inherently unfair. Consequently, results may be skewed in favor of eras or composers that do not best reflect the taste of the user.
 
 Generally speaking, the composer test will provide a more consistent experience than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin vs debussy under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity.
 
@@ -63,7 +63,7 @@ winner rating change = K * (1 - win probability) | loser rating change = -(winne
 <br>
 
 #### Roulette wheel selection system (Matchmaking)
-The roulette wheel selection system is used to apply weighted probabilities (based on relative elo ratings) to the matchmaking process in place of random generation. 
+The roulette wheel selection system is used to apply weighted probabilities (based on relative elo ratings) to the matchmaking process in place of purely random selection. 
 
 At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when a winner is selected. The change in weight of the winning and losing category per round are proportional to the change in elo rating that occurs, divided by a constant value.
 
@@ -95,10 +95,10 @@ function selectRandomWithProbability(possibleSelections: Category[]): Category {
     }
 }
 ```
-<sub>ts implementation of the roulette wheel selection system</sub>
+<sub>typescript implementation of the roulette wheel selection system</sub>
 
 <br>
-Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories receive smaller probability weights, lowering their likelihood of being shown.
+Under this model, higher rated categories are awarded larger probability weights (slices) and, in turn, are more likely to be displayed. Conversely, lower rated categories receive smaller probability weights, lowering their likelihood of being shown.
 
 #### Why take this approach?
 
@@ -115,18 +115,18 @@ The model continuously stress-tests high ranking categories to prevent any one c
 
 In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins one of these matchups in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to defend its position and justify the rating increase.
 
-Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating two of the most pronounced limitations of the testing methodology itself:
+Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating two of the most pronounced limitations of the testing methodology itself:
 
-1. Grouping unique pieces under collective categories
+1. Grouping unique pieces under broad categories
 2. Random 30-second previews
   
-The issue lies in the very strong possibility of 'false negatives', where users may not resonate with specific works of an era/composer, even if they have a preference towards that era/composer as a whole. Such cases can be triggered simply by subjectivity in taste, as well as by the preview track for a given piece misrepresenting the overall work and skewing the user's opinion.
+Both of these limitations can skew user preferences by allowing large stylistic differences to exist between pieces under the same category or misrepresenting the character of an overall work, respectively. Consequently, they significantly increase the likelihood of fluke losses, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole. 
 
-For instance, if a user initially chooses against pieces pertaining to an era they are actually inclined to favour, a world in which it can recover in rating and end the test as a top-ranked preference is made entirely possible through self-correcting rankings. As previously explained, the era in question will continue to appear in future matchups, where it will likely trigger a large rating swing once it wins and thereby provide itself with subsequent opportunities to prove itself.
+However, with this system in place, even if a user chooses against several pieces pertaining to an era or composer they are actually inclined to favour, the self-correcting nature of the algorithm ensures it still has opportunities to recover its rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
 
-On the flip end, it is entirely possible for 'false positives' to occur, where a user resonates strongly with a specific work, but has adamant opinions regarding its corresponding era/composer as a whole. In such cases, the category will likely lose in subsequent matchups and fail to demonstrate consistent favourability, quickly dropping back down in both rating and visibility.
+On the flip side, it is entirely possible for fluke wins to occur as well, where a user resonates strongly with a specific work, but has adamant opinions regarding its corresponding era/composer as a whole. In such cases, the category will likely lose in future matchups and fail to demonstrate consistent favourability, quickly dropping back down in both rating and visibility.
 
-As such, the algorithm naturally prevents outlier pieces from exerting an outsized influence the final rankings, as it only rewards categories for being able to _consistently_ perform, while negating the impact of fluke wins and losses.
+As such, the algorithm naturally prevents outlier pieces from exerting an outsized influence the final rankings, as it rewards categories for being able to _consistently_ perform, while negating the impact of fluke wins and losses.
 
 
 
@@ -134,7 +134,7 @@ As such, the algorithm naturally prevents outlier pieces from exerting an outsiz
 
 The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that features every category. 
 
-By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to fairly rank them against each other. With this in mind, the composer test will only display the top four ranked composers on the results page.
+By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to fairly rank them against each other. With this in mind, the composer test will only display the _top three_ ranked composers on the results page.
 
 
 ### System Architecture

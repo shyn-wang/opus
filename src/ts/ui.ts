@@ -151,5 +151,10 @@ export function displayResults() {
     firstId.textContent = `1. ${first}`;
     secondId.textContent = `2. ${second}`;
     thirdId.textContent = `3. ${third}`;
-    fourthId.textContent = `4. ${fourth}`;
+
+    if (mode === 'composers') {
+        fourthId.textContent = ``; // no 4th place in composer mode
+    } else {
+        fourthId.textContent = `4. ${fourth}`;
+    }
 }
