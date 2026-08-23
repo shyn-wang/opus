@@ -18,7 +18,7 @@ At the end of the test, the top-ranked era(s) or composer(s) will be presented t
 
 <br>
 
-https://github.com/user-attachments/assets/405e6c28-ee3e-419e-bd5c-582688c81dfd
+https://github.com/user-attachments/assets/5e25e3ea-de52-465b-ba1d-cf6a6e374da5
 
 <br>
 
@@ -65,21 +65,39 @@ winner rating change = K * (1 - win probability) | loser rating change = -(winne
 #### Roulette wheel selection system (Matchmaking)
 The roulette wheel selection system is used to apply weighted probabilities (based on relative elo ratings) to the matchmaking process in place of random generation. 
 
-At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when winners are selected. The change in the probabilities of the winning and losing category per round are proportional to the change in elo rating that occurs, divided by a constant value.
+At the start of a test, all competing categories are assigned equal probability weights that initially sum to 1.0, which like the elo ratings, are updated round over round when a winner is selected. The change in weight of the winning and losing category per round are proportional to the change in elo rating that occurs, divided by a constant value.
 
 _In era mode, this constant is set to 400 for a max 0.1 increase/decrease in a single category's probability weight per round._
 
 _In composer mode, this constant is set to 600 for a max 0.0667 increase/decrease in a single category's probability weight per round (increased round count in composer mode requires more gradual changes)._
 
-_In both modes, relative floors and ceilings are in place to prevent any category from ever being hidden entirely or developing a runaway lead in probability._
+In both modes, relative floors and ceilings are in place to prevent any category from ever being hidden entirely or developing a runaway lead in probability.
 
-When determining the matchup for each round, a random number is generated ranging from 0 to the sum of all the competing weights; the program then traverses through the categories and adds the weightings of each as individual slices until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the competition pool.
+When determining the matchup for each round, a random number is first generated ranging from 0 to the sum of all the weights. The program then traverses through the categories and sums each weight as an individual slice until the number is 'captured' by one of them, which is chosen as the first contender. This process is repeated to determine the opposing category, with the omission of the selected category's weight from the competition pool.
 <br><br>
 
-<img width="2720" height="880" alt="weighted_probability_selection" src="https://github.com/user-attachments/assets/e36a8dda-ee31-4c6a-810b-4544645d4a33" />
-<sub>visual representation of the probability weights as slices (era mode)</sub>
+``` js
+function selectRandomWithProbability(possibleSelections: Category[]): Category {
+    // ... omitted: calculation of probabilitySum - represents sum of the category weights in possibleSelections
 
-<br><br>
+    // generate a random number between 0 and probabilitySum
+    const randomNum = Math.random() * probabilitySum;
+    
+    // traverse categories (eras/composers) array and sum weightings as individual slices until the randomly selected number is 'captured' by one of the categories  
+    let cumulative = 0;
+    
+    for (const selection of possibleSelections) {
+        cumulative += selection.probability; // add individual 'slices'
+    
+        if (randomNum <= cumulative) { // check if random num is captured by slice just added
+            return selection;
+        }
+    }
+}
+```
+<sub>ts implementation of the roulette wheel selection system</sub>
+
+<br>
 Under this model, higher rated categories are awarded with larger probability weights (slices) and are, in turn, more likely to be displayed. Conversely, lower rated categories receive smaller probability weights, lowering their likelihood of being shown.
 
 #### Why take this approach?
@@ -93,17 +111,22 @@ For ranking, an elo-based system was specifically chosen in place of a conventio
 
 These characteristics are especially significant to the function of the probabilistic matchmaking system, which is used to intentionally expose users more frequently to categories they have taken prior interest in. 
 
-The model primarily stress-tests the top ranking categories by pitting them against a wide range of competing options, rewarding only the categories that are consistently rated highly and preventing any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against lower-rated opponents.
+The model continuously stress-tests high ranking categories to prevent any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against lower-rated opponents.
 
-In doing so, it simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins one of these matchups in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and force it into subsequent matchups, where it will be provided opportuities to defend its position and justify the rating increase.
+In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins one of these matchups in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to defend its position and justify the rating increase.
 
-Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating one of the most pronounced limitations of the testing methodology itself - grouping unique pieces under collective categories. The issue lies in the very likely possibility that users may not resonate with some specific works of an era/composer, even if they have a preference towards that era/composer as a whole. 
+Under this system, no era/composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating two of the most pronounced limitations of the testing methodology itself:
 
-For instance, if a user initially chooses against pieces pertaining to a specific era in fluke comparisons, but is later shown a work they actually love, a world in which it can potentially recover in rating and end the test as a top-ranked preference only exists when using elo-based rankings. As previously explained, the selection of this piece under such context would likely result in a large rating swing, and thereby provide the era with subsequent opportunities to prove itself.
+1. Grouping unique pieces under collective categories
+2. Random 30-second previews
+  
+The issue lies in the very strong possibility of 'false negatives', where users may not resonate with specific works of an era/composer, even if they have a preference towards that era/composer as a whole. Such cases can be triggered simply by subjectivity in taste, as well as by the preview track for a given piece misrepresenting the overall work and skewing the user's opinion.
 
-On the flip end, it is entirely possible for a user to resonate strongly with a specific work, but have adamant opinions regarding its corresponding era/composer as a whole. In this case, the category would likely fail to hold up in any subsequent comparisons and quickly drop back down in rating and visibility.
+For instance, if a user initially chooses against pieces pertaining to an era they are actually inclined to favour, a world in which it can recover in rating and end the test as a top-ranked preference is made entirely possible through self-correcting rankings. As previously explained, the era in question will continue to appear in future matchups, where it will likely trigger a large rating swing once it wins and thereby provide itself with subsequent opportunities to prove itself.
 
-As such, the algorithm naturally prevents outlier pieces from exerting an outsized influence the final rankings, as it rewards categories for being able to consistently perform, while negating the impact of fluke wins and losses.
+On the flip end, it is entirely possible for 'false positives' to occur, where a user resonates strongly with a specific work, but has adamant opinions regarding its corresponding era/composer as a whole. In such cases, the category will likely lose in subsequent matchups and fail to demonstrate consistent favourability, quickly dropping back down in both rating and visibility.
+
+As such, the algorithm naturally prevents outlier pieces from exerting an outsized influence the final rankings, as it only rewards categories for being able to _consistently_ perform, while negating the impact of fluke wins and losses.
 
 
 
@@ -146,6 +169,22 @@ Opus implements a client-server architecture featuring a static frontend bundled
 #### Express Server
 
 The backend is comprised of an Express.js server that serves the static frontend and proxies GET requests to the public Deezer API (no auth) to retrieve track metadata from curated playlists representing each category.
+
+| Category | Playlist |
+|---|---|
+| Baroque | https://link.deezer.com/s/34bMMRXCn45BPl52sk6ml |
+| Classical | https://link.deezer.com/s/34bMRE3mwi7wbZalqgNUc |
+| Romantic | https://link.deezer.com/s/34bMS0XWrUbGUO2U5zAwd |
+| Modern | https://link.deezer.com/s/34bK0UcD8VR55MHTyFxr8 |
+| | |
+| JS Bach | https://link.deezer.com/s/34bMSyqvZdq5fgK6dlxUi |
+| Mozart | https://link.deezer.com/s/34bMT4y24E5WmarBcwCMF |
+| Beethoven | https://link.deezer.com/s/34bMTlb4VRQMyyVQsSGVW |
+| Chopin | https://link.deezer.com/s/34bMTFons9eEfUcDFhog9 |
+| Liszt | https://link.deezer.com/s/34bMTWgDvvsM4ERdLdp8l |
+| Rachmaninoff | https://link.deezer.com/s/34bMUbkizA3VTN4mnwD4u |
+| Scriabin | https://link.deezer.com/s/34bMUrNZ9wUKeFT6tAPDa |
+| Debussy | https://link.deezer.com/s/34bMUHBF4ROWXZ9ZK4Cqc |
 
 ColorThief is also implemented to extract album colour palette data (used for dynamic theming) server-side, keeping the frontend independent of Node.js. 
 
