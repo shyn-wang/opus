@@ -1,18 +1,18 @@
 # Opus
 
 ## Introduction
-Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are just so many possible places to start.
+Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near-endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are just so many possible places to start.
 
-_Opus is a music recommender that aims to introduce people to the world of classical piano through the use of an elo-based ranking system and dynamic matchmaking algorithm to run targeted head-to-head comparisons between different pieces and profile a user's tastes._
+_Opus is a music recommender designed to introduce people to the world of classical piano through the use of an adpative ranking and matchmaking algorithm that conducts A/B testing between different styles of pieces to profile a user's overall preferences._
 
 ## Using Opus
 When starting a test, users can choose between either an era or composer mode:
 
-**Era Mode** - a 15 round comparison test identifies a user's preferences for the four major stylistic eras (baroque, classical, romantic, and modern)
+**Era Mode** - a 15-round comparison test that profiles a user's preferences for the four major stylistic eras (baroque, classical, romantic, and modern)
 
-**Composer Mode** - a 30 round comparison test identifies a user's preferences for eight significant composers (js bach, mozart, beethoven, chopin, liszt, rachmaninoff, scriabin, and debussy)
+**Composer Mode** - a 30-round comparison test that profiles a user's preferences for eight significant composers (js bach, mozart, beethoven, chopin, liszt, rachmaninoff, scriabin, and debussy)
 
-The comparison test for both modes will present two selected pieces each round alongside a 30-second preview of each, and prompt users to choose the one they prefer. For information on the internal logic of the matchmaking and ranking systems, see [Matchmaking/Ranking Algorithm](#matchmakingranking-algorithm).
+The comparison test for both modes will present two selected pieces each round alongside a 30-second preview of each, and prompt users to select the one they prefer. For information on the internal logic of the matchmaking and ranking systems, see [Matchmaking/Ranking Algorithm](#matchmakingranking-algorithm).
 
 At the end of the test, the top-ranked era(s) or composer(s) will be presented to the user as recommended starting points for listening.
 
@@ -22,14 +22,6 @@ https://github.com/user-attachments/assets/5e25e3ea-de52-465b-ba1d-cf6a6e374da5
 
 <br>
 
-
-**Limitations**
-
-The A/B, sample-based testing methodology employed by Opus is inherently prone to inaccuracies, as it is impossible to form a complete opinion on a piece from a random 30-second clip (true for any genre, but especially so for classical, which is built on the idea of long-form consumption). Moreover, the algorithm may pair works of entirely different contexts with each other (i.e. one movement of a classical sonata versus a romantic lied), making some comparisons inherently unfair. Consequently, results may be skewed in favor of eras or composers that do not best reflect the taste of the user.
-
-Generally speaking, the composer test will provide a more consistent experience than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin vs debussy under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity.
-
-Even with such limitations in mind, Opus can hopefully still prove valuable to complete newcomers to the world of classical music by acting as the guide that narrows their field of focus and directs their attention, ultimately helping them uncover music they love.
 
 ## Technical Specifications
 
@@ -102,31 +94,56 @@ Under this model, higher rated categories are awarded larger probability weights
 
 #### Why take this approach?
 
-The ultimate goal of the algorithm is to quickly profile a user's tastes and identify their most preferred eras/composers. To accomplish this, it prioritizes two objectives:
+The ultimate goal of the algorithm is to quickly profile a user's tastes and identify their most preferred eras or composers. To accomplish this, it prioritizes two objectives:
 
 1. Identify and rank categories that users show interest in
-2. Continuously re-evaluate top ranking categories to ensure consistency
+2. Continuously re-evaluate high ranking categories to ensure consistency
 
 For ranking, an elo-based system was specifically chosen in place of a conventional point-tally model given its self-correcting nature and ability to quantify the significance of individual user choices. 
 
-These characteristics are especially significant to the function of the probabilistic matchmaking system, which is used to intentionally expose users more frequently to categories they have taken prior interest in. 
+These characteristics are especially significant to the function of the probabilistic matchmaking system, which adapts in real-time to intentionally expose users more frequently to categories they have previously shown interest in. 
 
 The model continuously stress-tests high ranking categories to prevent any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against lower-rated opponents.
 
-In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins one of these matchups in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to defend its position and justify the rating increase.
+In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins such a matchup in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to justify its rating increase and demonstrate consistent performance.
 
-Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating two of the most pronounced limitations of the testing methodology itself:
 
-1. Grouping unique pieces under broad categories
-2. Random 30-second previews
-  
-Both of these limitations can skew user preferences by allowing large stylistic differences to exist between pieces under the same category or misrepresenting the character of an overall work, respectively. Consequently, they significantly increase the likelihood of fluke losses, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole. 
 
-However, with this system in place, even if a user chooses against several pieces pertaining to an era or composer they are actually inclined to favour, the self-correcting nature of the algorithm ensures it still has opportunities to recover its rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
+Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating the single most pronounced limitation of the testing methadology itself: **noise**
+
+The algorithm is inherently prone to collecting noisy data as a result of numerous compounding factors:
+
+
+1. `Random 30-second preview tracks`
+   
+   Each round relies on a user choosing between two pieces based alone on 30-second audio samples, making it impossible for a comprehensive opinion to be formed on either work and providing only an essence of what each has to offer. This would be problematic for any genre of music, but is especially so for classical, which is built on the notion of long-form consumption. Consequently, the random preview for a given work often misrepresents the character of the overall piece and alters how it is percieved by users.
+
+2. `Unfair comparisons`
+
+   The algorithm may pit works of entirely different contexts against each other (i.e. one movement of a classical sonata vs a romantic lied), making some comparisons inherently unfair and potentially inducing user bias.
+
+   For instance, in a matchup between a fast and slow piece, a user may be intrinsically inclined to select the faster work each time, regardless of the era or composer associated with it. In such cases, the principle factor motivating the user's decisions is no longer the style of a piece, but rather its form, making the results inaccurate.
+
+3. `Grouping of distinct pieces under broad categories`
+
+   The broad categorization of pieces from different composers (era mode) or distinct styles of pieces from the same composer (composer mode) inevitably introduces variability to a category's performance.
+
+   It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which pieces are randomly selected to represent each category in a matchup, the user may have strong biases that would differ had other works been chosen. 
+
+   This *increases*/* the likelihood of a category losing matchups it is expected to win, or winning when it should lose, causing rankings to shift unpredictably round over round.
+
+   /*Note that a baseline chance of fluke results is always present due to inherent subjective taste - categories may perform against expectations for no specific reason (true even if every piece were of the exact same style)
+
+   Generally speaking, the composer test will be more consistent in this regard than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin & debussy both under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity and does not eliminate the issue of categorization altogether.
+
+
+All of these contributing factors work to skew user preferences (on top of inherent subjective taste) in individual matchups. Consequently, they significantly increase the likelihood of fluke losses, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole. 
+
+However, with this system in place, even if a user chooses against several pieces pertaining to an era or composer they are generally inclined to favour, the self-correcting nature of the algorithm ensures it still has opportunities to recover in rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
 
 On the flip side, it is entirely possible for fluke wins to occur as well, where a user resonates strongly with a specific work, but has adamant opinions regarding its corresponding era/composer as a whole. In such cases, the category will likely lose in future matchups and fail to demonstrate consistent favourability, quickly dropping back down in both rating and visibility.
 
-As such, the algorithm naturally prevents outlier pieces from exerting an outsized influence the final rankings, as it rewards categories for being able to _consistently_ perform, while negating the impact of fluke wins and losses.
+As such, the algorithm naturally prevents noisy results from exerting an outsized influence the final rankings, as it rewards categories for being able to _consistently_ perform, where associated pieces must be well-percieved across the board, while negating the impact of fluke wins and losses.
 
 
 
