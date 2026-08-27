@@ -3,7 +3,7 @@
 ## Introduction
 Classical music is one of the richest and most rewarding musical genres to listen to, featuring a near-endless selection of pieces hailing from distinct stylistic eras that span a combined several hundred years of history. However, it is this same reason that often makes it feel intimidating and unapproachable to newcomers, as there are just so many possible places to start.
 
-_Opus is a music recommender designed to introduce people to the world of classical piano through the use of an adpative ranking and matchmaking algorithm that conducts A/B testing between different styles of pieces to profile a user's overall preferences._
+_Opus is a music recommender designed to introduce people to the world of classical piano through the use of an adaptive ranking and matchmaking algorithm that conducts A/B testing between different styles of pieces to profile a user's overall preferences._
 
 ## Using Opus
 When starting a test, users can choose between either an era or composer mode:
@@ -114,27 +114,27 @@ The algorithm is inherently prone to collecting noisy data as a result of numero
 
 1. `Random 30-second preview tracks`
    
-   Each round relies on a decision being made between two pieces based alone on 30-second audio samples, making it impossible for a comprehensive opinion to be formed on either work and leaving users with only an essence of what each has to offer. This would be problematic for any genre of music, but is especially so for classical, which is built on the notion of long-form consumption. Consequently, the random preview for a given work often misrepresents the character of the overall piece and alters how it is percieved by users.
+   Each round relies on a decision being made between two pieces based solely on 30-second audio samples, making it impossible for a comprehensive opinion to be formed on either work and leaving users with only an essence of what each has to offer. This would be problematic for any genre of music, but is especially so for classical, which is built on the notion of long-form consumption. Consequently, the random preview for a given work often misrepresents the character of the overall piece and alters how it is perceived by users.
 
 2. `Unfair comparisons`
 
    The algorithm may pit works of entirely different contexts against each other (i.e. one movement of a classical sonata vs a romantic lied), making some comparisons inherently unfair and potentially inducing user bias.
 
-   For instance, in a matchup between a fast and slow piece, a user may be intrinsically biased towards the faster work each time, regardless of the era or composer associated with it. In such cases, the principle factor motivating the user's decisions is no longer the style of a piece, but rather its form, making the results inaccurate.
+   For instance, in a matchup between a fast and slow piece, a user may be intrinsically biased towards the faster work each time, regardless of the era or composer associated with it. In such cases, the principal factor motivating the user's decisions is no longer the style of a piece, but rather its form, making the results inaccurate.
 
 3. `Grouping of distinct pieces under broad categories`
 
    The broad categorization of pieces from different composers (era mode) or distinct styles of pieces from the same composer (composer mode) inevitably introduces variability to a category's round over round performance.
 
-   It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which works are randomly selected to represent each category in a matchup, the user may have pre-existing biases that are likely to influence the outcome.
+   It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which works are randomly selected to represent each category in a matchup, the user may have pre-existing biases that are likely to influence the outcome in unpredictable ways.
 
-   For instance, if a user resonates strongly with the works of the majority of composers in a given era, but actively dislikes the others, the era will likely fluctuate unpredictably in ranking over the course of a test as different composers are chosen to represent it.
+   For instance, if a user resonates strongly with the works of the majority of composers in a given era, it is naturally expected to rise towards the top in ranking, even if the user actively dislikes the remaining pieces. However, in the latter case, the era will likely exhibit random fluctuations (i.e. sudden dips) in rating over the course of a test, as different composers are selected to represent it and the minority of unfavoured works inevitably make appearances. 
 
     Generally speaking, the composer test will be more consistent in this regard than its era counterpart, as it avoids the issue of large stylistic differences between composers categorized very broadly under one era (i.e. scriabin & debussy both under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity and does not eliminate the issue of categorization altogether.
 
 <br>
 
-All of these contributing factors work to skew user preferences in individual matchups. Consequently, they significantly <a href="#footnote" id="footnote-ref">increase</a> the likelihood of **fluke losses**, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole, as well as **fluke wins**, where users may resonate strongly with a specific work, but are generally adamant towards its corresponding era/composer.
+All of these contributing factors work to skew user preferences in individual matchups against the predictions of the elo system. Consequently, they significantly <a href="#footnote" id="footnote-ref">increase</a> the likelihood of **fluke losses**, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole, as well as **fluke wins**, where users may resonate strongly with a specific work, but are generally averse to its corresponding era/composer.
 
 However, in both cases, the algorithm naturally prevents noisy data from exerting an outsized influence on the final rankings:
 
