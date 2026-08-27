@@ -20,8 +20,6 @@ At the end of the test, the top-ranked era(s) or composer(s) will be presented t
 
 https://github.com/user-attachments/assets/5e25e3ea-de52-465b-ba1d-cf6a6e374da5
 
-<br>
-
 
 ## Technical Specifications
 
@@ -107,47 +105,58 @@ The model continuously stress-tests high ranking categories to prevent any one c
 
 In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins such a matchup in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to justify its rating increase and demonstrate consistent performance.
 
+Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating the single most pronounced limitation of the testing methodology itself: **noise**
 
-
-Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating the single most pronounced limitation of the testing methadology itself: **noise**
+#### Limitations
 
 The algorithm is inherently prone to collecting noisy data as a result of numerous compounding factors:
 
 
 1. `Random 30-second preview tracks`
    
-   Each round relies on a user choosing between two pieces based alone on 30-second audio samples, making it impossible for a comprehensive opinion to be formed on either work and providing only an essence of what each has to offer. This would be problematic for any genre of music, but is especially so for classical, which is built on the notion of long-form consumption. Consequently, the random preview for a given work often misrepresents the character of the overall piece and alters how it is percieved by users.
+   Each round relies on a decision being made between two pieces based alone on 30-second audio samples, making it impossible for a comprehensive opinion to be formed on either work and leaving users with only an essence of what each has to offer. This would be problematic for any genre of music, but is especially so for classical, which is built on the notion of long-form consumption. Consequently, the random preview for a given work often misrepresents the character of the overall piece and alters how it is percieved by users.
 
 2. `Unfair comparisons`
 
    The algorithm may pit works of entirely different contexts against each other (i.e. one movement of a classical sonata vs a romantic lied), making some comparisons inherently unfair and potentially inducing user bias.
 
-   For instance, in a matchup between a fast and slow piece, a user may be intrinsically inclined to select the faster work each time, regardless of the era or composer associated with it. In such cases, the principle factor motivating the user's decisions is no longer the style of a piece, but rather its form, making the results inaccurate.
+   For instance, in a matchup between a fast and slow piece, a user may be intrinsically biased towards the faster work each time, regardless of the era or composer associated with it. In such cases, the principle factor motivating the user's decisions is no longer the style of a piece, but rather its form, making the results inaccurate.
 
 3. `Grouping of distinct pieces under broad categories`
 
-   The broad categorization of pieces from different composers (era mode) or distinct styles of pieces from the same composer (composer mode) inevitably introduces variability to a category's performance.
+   The broad categorization of pieces from different composers (era mode) or distinct styles of pieces from the same composer (composer mode) inevitably introduces variability to a category's round over round performance.
 
-   It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which pieces are randomly selected to represent each category in a matchup, the user may have strong biases that would differ had other works been chosen. 
+   It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which works are randomly selected to represent each category in a matchup, the user may have pre-existing biases that are likely to influence the outcome.
 
-   This *increases*/* the likelihood of a category losing matchups it is expected to win, or winning when it should lose, causing rankings to shift unpredictably round over round.
+   For instance, if a user resonates strongly with the works of the majority of composers in a given era, but actively dislikes the others, the era will likely fluctuate unpredictably in ranking over the course of a test as different composers are chosen to represent it.
 
-   /*Note that a baseline chance of fluke results is always present due to inherent subjective taste - categories may perform against expectations for no specific reason (true even if every piece were of the exact same style)
+    Generally speaking, the composer test will be more consistent in this regard than its era counterpart, as it avoids the issue of large stylistic differences between composers categorized very broadly under one era (i.e. scriabin & debussy both under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity and does not eliminate the issue of categorization altogether.
 
-   Generally speaking, the composer test will be more consistent in this regard than its era counterpart, as it avoids the issue of large stylistic differences existing between composers categorized very broadly under one era (i.e. scriabin & debussy both under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity and does not eliminate the issue of categorization altogether.
+<br>
+
+All of these contributing factors work to skew user preferences in individual matchups. Consequently, they significantly <a href="#footnote" id="footnote-ref">increase</a> the likelihood of **fluke losses**, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole, as well as **fluke wins**, where users may resonate strongly with a specific work, but are generally adamant towards its corresponding era/composer.
+
+However, in both cases, the algorithm naturally prevents noisy data from exerting an outsized influence on the final rankings:
+
+`Addressing fluke losses`
+
+Given the self-correcting nature of the algorithm, even if a user chooses against an era or composer they are generally inclined to favour in numerous consecutive fluke matchups, the algorithm ensures it still has opportunities to recover in rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
+
+In instances where fluke losses occur in isolated cases throughout a test for strongly preferred eras or composers, both the category's rating and probability weight are high enough such that the effects of individual losses (even upsets) are insignificant. 
+
+`Addressing fluke wins`
+
+Since the algorithm enforces consistent favourability as a requirement for becoming top-ranking, categories that win in fluke comparisons are likely to quickly drop back down in both rating and visibility (after the initial spike), as they will be unable to consistently win in following matchups.
+
+<br>
+
+<p id="footnote">
+  <a href="#footnote-ref">^</a> 
+  <em><sup>*</sup>Note that a baseline chance of fluke results is always present due to the inherent nature of subjective taste, regardless of the factors described above - categories may perform against expectations for no specific reason (true even in a hypothetical world where every piece in a given category is of identical style, comparisons are ideal, and audio samples are comprehensive)</em>
+</p>
 
 
-All of these contributing factors work to skew user preferences (on top of inherent subjective taste) in individual matchups. Consequently, they significantly increase the likelihood of fluke losses, where users may not resonate with specific works of an era or composer, despite favouring that category as a whole. 
-
-However, with this system in place, even if a user chooses against several pieces pertaining to an era or composer they are generally inclined to favour, the self-correcting nature of the algorithm ensures it still has opportunities to recover in rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
-
-On the flip side, it is entirely possible for fluke wins to occur as well, where a user resonates strongly with a specific work, but has adamant opinions regarding its corresponding era/composer as a whole. In such cases, the category will likely lose in future matchups and fail to demonstrate consistent favourability, quickly dropping back down in both rating and visibility.
-
-As such, the algorithm naturally prevents noisy results from exerting an outsized influence the final rankings, as it rewards categories for being able to _consistently_ perform, where associated pieces must be well-percieved across the board, while negating the impact of fluke wins and losses.
-
-
-
-#### Note
+#### Ranking Accuracy
 
 The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that features every category. 
 
@@ -202,6 +211,8 @@ The backend is comprised of an Express.js server that serves the static frontend
 | Rachmaninoff | https://link.deezer.com/s/34bMUbkizA3VTN4mnwD4u |
 | Scriabin | https://link.deezer.com/s/34bMUrNZ9wUKeFT6tAPDa |
 | Debussy | https://link.deezer.com/s/34bMUHBF4ROWXZ9ZK4Cqc |
+
+<br>
 
 ColorThief is also implemented to extract album colour palette data (used for dynamic theming) server-side, keeping the frontend independent of Node.js. 
 
