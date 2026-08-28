@@ -101,9 +101,9 @@ For ranking, an elo-based system was specifically chosen in place of a conventio
 
 These characteristics are especially significant to the function of the probabilistic matchmaking system, which adapts in real-time to intentionally expose users more frequently to categories they have previously shown interest in. 
 
-The model continuously stress-tests high ranking categories to prevent any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against lower-rated opponents.
+The model continuously stress-tests high ranking categories to prevent any one category from becoming top-ranked by chance, as it will be forced to repeatedly defend its position against close competitors and lower-rated opponents (high vs high & high vs low matchups are both common occurrences).
 
-In doing so, the algorithm simultaneously provides low ranking categories with frequent opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins such a matchup in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to justify its rating increase and demonstrate consistent performance.
+In doing so, the algorithm determines the relative rankings of the top categories while simultaneously providing low ranking categories with opportunities to mount potential comebacks during a test. With the weighting floor in place, the system ensures that such contenders still appear in comparisons, where they will be highly likely to face-off against a high ranking opponent. Given the self-correcting nature of the elo system, any category that wins such a matchup in an upset will receive a significant boost in rating, and in turn, a proportionally significant gain in probabilistic weighting. This will increase the category's overall visibility and place it into subsequent matchups, where it will be forced to justify its rating increase and demonstrate consistent performance.
 
 Given this, no era or composer is ever truly eliminated from high-ranking contention while a test is ongoing, which is essential to mitigating the single most pronounced limitation of the testing methodology itself: **noise**
 
@@ -128,7 +128,7 @@ The algorithm is inherently prone to collecting noisy data as a result of numero
 
    It is more than likely that a user will prefer one composer over another in a given era, or favour a specific style of piece from an individual composer (i.e. favouring chopin nocturnes over waltzes). As such, depending on which works are randomly selected to represent each category in a matchup, the user may have pre-existing biases that are likely to influence the outcome in unpredictable ways.
 
-   For instance, if a user resonates strongly with the works of the majority of composers in a given era, it is naturally expected to rise towards the top in ranking, even if the user actively dislikes the remaining pieces. However, in the latter case, the era will likely exhibit random fluctuations (i.e. sudden dips) in rating over the course of a test, as different composers are selected to represent it and the minority of unfavoured works inevitably make appearances. 
+   For instance, if a user resonates strongly with the works of the majority of composers in a given era, it is naturally expected to rise towards the top in ranking, even if the user actively dislikes the remaining pieces. However, in such cases, the era will likely exhibit random fluctuations (i.e. sudden dips) in rating over the course of a test, as different composers are selected to represent it and the minority of unfavoured works inevitably make appearances. 
 
     Generally speaking, the composer test will be more consistent in this regard than its era counterpart, as it avoids the issue of large stylistic differences between composers categorized very broadly under one era (i.e. scriabin & debussy both under modern). However, it is also fundamentally limited in scope by the omission of many great composers for brevity and does not eliminate the issue of categorization altogether.
 
@@ -141,8 +141,6 @@ However, in both cases, the algorithm naturally prevents noisy data from exertin
 `Addressing fluke losses`
 
 Given the self-correcting nature of the algorithm, even if a user chooses against an era or composer they are generally inclined to favour in numerous consecutive fluke matchups, the algorithm ensures it still has opportunities to recover in rating and end the test as a top-ranked preference. As previously explained, the category in question will continue to appear in future matchups, where an upset win is likely to trigger a large rating swing and thereby provide it with subsequent chances to prove itself.
-
-In instances where fluke losses occur in isolated cases throughout a test for strongly preferred eras or composers, both the category's rating and probability weight are high enough such that the effects of individual losses (even upsets) are insignificant. 
 
 `Addressing fluke wins`
 
@@ -160,7 +158,7 @@ Since the algorithm enforces consistent favourability as a requirement for becom
 
 The algorithm is specifically designed to identify a user's most preferred categories, however, it does so at the expense of an accurate ranking that features every category. 
 
-By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will almost never occur, making it impossible to fairly rank them against each other. With this in mind, the composer test will only display the _top three_ ranked composers on the results page.
+By nature, rankings between midfield categories will be inaccurate since the algorithm is heavily biased towards matchups that feature at least one of the top contenders. Consequently, a comparison between, for instance, a 6th and 7th place category, will occur very infrequently, making it impossible to fairly rank them against each other. With this in mind, the composer test will only display the _top three_ ranked composers on the results page.
 
 
 ### System Architecture
